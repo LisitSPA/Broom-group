@@ -1,0 +1,209 @@
+MODELOS
+- User (managed by rails)
+- Matrix (no API, seeded)
+- Country (no API, seeded)
+- Version (CRUD )
+- FirmProfile (CRUD )
+- Firm (CRUD)
+- Ownership (CRUD)
+
+  
+"MatrixController"
+[GET] "/api/v1/matrix" (Matrix Controller)
+  última matriz disponible con su última versión y sus versiones
+  
+  Request (query params):
+    - "?onlySimulated=": boolean (opcional)
+  Response:
+    [
+      {
+        "matrixId": integer,
+        "matrixName": string,
+        "matrixDescription": string,
+        "versionsCount": integer,
+        "lastVersionId": integer,
+        "versions": [
+          {
+            "versionId": integer,
+            "versionNumber": integer,
+            "title": string,
+            "description": string,
+            "author": string,
+            "sourceFile": string
+          }
+        ]
+      }
+    ]
+
+"VersionController"
+[GET] "/api/v1/versions/:version_id"
+  solicitar una versión específica con todas sus firmas y sus inversores
+
+  Request (query params):
+    - ":version_id": integer
+  Response:
+    {
+      "versionId": integer,
+      "firmsSignature": string,
+      "investorsSignature": string,
+      "firms": [
+        {
+          "firmId": integer,
+          "firmProfileId": integer,
+          "name": string,
+          "description": string,
+          "rut": string,
+          "country": string,
+          "sapCode": string,
+          "investors": [
+            {
+              "ownerFirmProfileId": integer,
+              "percentage": float
+            }
+          ]
+        }
+      ]
+    }
+
+[POST] "/api/v1/versions"
+  crear una nueva versión con las relaciones de propiedad
+
+  Request (body):
+    {
+      "versionData": {
+        "matrixId": integer,
+        "authorId": integer,
+        "title": string,
+        "description": string,
+        "isSimulated": boolean,
+        "sourceFile": string,
+      },
+      "firmProfilesIds": [
+        ...
+      ],
+      "ownerships": [
+        {
+          "ownerProfileId": integer,
+          "subsidiaryProfileId": integer,
+          "percentage": float
+        }
+      ]
+    }
+  Response:
+    {
+      "versionId": integer,
+      "versionNumber": integer,
+      "title": string,
+      "description": string,
+      "author": string,
+      "sourceFile": string
+    }
+
+[DELETE] "/api/v1/versions/:version_id"
+[PUT] "/api/v1/versions/:version_id"
+  editar los datos de una versión específica
+
+  Request (body):
+    {
+      "title": string,
+      "description": string,
+      "isSimulated": boolean,
+    }
+  Response:
+    {
+      "versionId": integer,
+      "versionNumber": integer,
+      "title": string,
+      "description": string,
+      "author": string,
+      "sourceFile": string
+    }
+  
+
+"FirmProfileController"
+[GET] "/api/v1/firm_profiles"
+  solicitar todos los perfiles de sociedades o buscar
+
+  Request (query params):
+    - "?search=": string (opcional)
+  Response:
+    [
+      {
+        "firmProfileId": integer,
+        "title": string,
+        "description": string,
+        "rut": string,
+        "sapCode": string,
+        "country": string
+      }
+    ]
+
+[POST] "/api/v1/firm_profiles"
+  crear un nuevo perfil de sociedad
+
+  Request (body):
+    {
+      "title": string,
+      "description": string,
+      "rut": string,
+      "sapCode": string,
+      "countryId": integer
+    }
+
+  Response:
+    {
+      "firmProfileId": integer,
+      "title": string,
+      "description": string,
+      "rut": string,
+      "sapCode": string,
+      "country": string
+    }
+
+[DELETE] "/api/v1/firm_profiles/:firm_profile_id"
+[PUT] "/api/v1/firm_profiles/:firm_profile_id"
+  editar los datos de un perfil de sociedad específico
+
+  Request (body):
+    {
+      "title": string,
+      "description": string,
+      "rut": string,
+      "sapCode": string,
+      "countryId": integer
+    }
+
+  Response:
+    {
+      "firmProfileId": integer,
+      "title": string,
+      "description": string,
+      "rut": string,
+      "sapCode": string,
+      "country": string
+    }
+
+[GET] "api/v1/firms/:firm_id"
+  solicitar una sociedad específica de la tabla Firm con sus propietarios
+    
+  Request (query params):
+    - ":firm_id": integer
+
+  Response:
+    {
+      "firmData": {
+        "firmId": integer,
+        "firmProfileId": integer,
+        "title": string,
+        "description": string,
+        "rut": string,
+        "country": string,
+        "sapCode": string,
+      },
+      "ownersMap": {
+        "adjacencyList": {},
+        "cycles": {},
+        "finalFirms": [],
+        "levels": {}
+      }
+    }

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "sourceMap": true,
+    "strict": true,
+    "paths": {
+      "@/*": ["app/*"],
+      "@/src*": ["app/frontend/src/*"],
+      "@/src/shared*": ["app/frontend/src/shared/*"],
+      "@/redux/actions*": ["app/frontend/redux/actions/*"],
+    }
+  },
+  "include": ["app/**/*", "app/frontend/src/*"],
+  "exclude": [
+    "**/dist",
+    "**/node_modules",
+    "**/test"
+  ]
+}

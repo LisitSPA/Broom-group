@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      <% if content_for?(:page_title) %>
+        <%= yield :page_title %>
+      <% else %>
+        Broom App
+      <% end %>
+    </title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= vite_react_refresh_tag %>
+    <%= vite_client_tag %>
+    <%= yield :vite_javascript_tag %>
+  </head>
+
+  <body>
+    <div class="flex" id="app">
+      <%= yield %>
+    </div>
+  </body>
+</html>

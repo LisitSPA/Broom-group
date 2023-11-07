@@ -1,0 +1,62 @@
+* DESCRIPCIÓN DE FEATURES *
+🌟  Feature
+📝  Descripción
+
+Gestión de usuarios
+- 🌟 Existe un usuario administrador que puede crear, editar y eliminar usuarios, se llama 'superadmin'
+- 📝 El usuario superadmin no puede ser eliminado
+- 📝 Se pueden crear otros usuarios con permisos de administrador
+- 🌟 Los usuarios administradores pueden crear, editar y eliminar usuarios
+
+Explorador de sociedades
+- 🌟 El explorador de sociedades es la vista por defecto de la app
+- Para explorar sociedades se debe estar logueado
+- 🌟 El explorador de sociedades es una lista de sociedades con un buscador y filtros
+- 🌟 El buscador permite filtrar sociedades por nombre, rut, país y el resto de atributos de una sociedad
+
+- 🌟 Cada sociedad es un elemento de la lista de sociedades en el explorador
+- Una sociedad muestra el nombre, rut, país y el resto de atributos de una sociedad
+- Cuando se despliega el detalle de una sociedad, se muestra una malla estilo árbol con las sociedades relacionadas
+- 🌟 La malla estilo árbol muestra las sociedades que son propietarias de la sociedad seleccionada
+- Las sociedades propietarias pueden tener sociedades propietarias, y así sucesivamente
+- Las sociedades propietarias forman niveles en la malla estilo árbol
+- 🌟 Cada nivel de propietarias muestra su porcentaje de participación con la sociedad de nivel superior
+- 🌟 En la parte superior, se despliega una vista con el porcentaje de participación final que tiene la sociedad seleccionada en otras sociedades
+- Este porcentaje de participación final se calcula en base a la matriz de participación de la sociedad seleccionada, que es un grafo dirigido
+- La vista superior que muestra el porcentaje de participación de la sociedad no se representa como una malla estilo árbol
+- Una sociedad puede tener participación en una misma sociedad a través de distintas sociedades filiales
+- La vista superior muestra el porcentaje de participación final de la sociedad seleccionada en otras sociedades
+- Las sociedades filiales que no son propietarias de otras sociedades son las que se muestran en la vista superior
+- Las filiales que no tienen filiales no son 'sociedades finales', porque siempre tienen propietarias aunque no tenga filiales
+- La vista superior no muestra las sociedades filiales intermedias
+
+Sobre los grafos dirigidos
+- En el 'grafo dirigido' del arból de propietarias como de filiales, pueden ocurrir ciclos en la matriz de participación de una sociedad y están permitidos
+- 🌟 Sin embargo la malla estilo árbol no muestra ciclos, porque esto podría generar un bucle infinito
+
+  Problema de representación del porcentaje de participación
+  - Pueden aparecer sociedades propietarias repetidas en la representación de estilo árbol con porcentajes de participación distintos
+
+  Problema de ciclos
+  - La sociedad seleccionada podría ser propietaria de una de sus sociedades propietarias en cualquier nivel (ciclo)
+  - Las sociedades filiales de la sociedad seleccionada podrían ser propietarias de alguna sociedad del árbol (ciclo)
+
+    Los ciclos pueden ser de tres tipos
+    1 Ciclos de participación indirecta: si sus filiales directas son propietarias o si alguna de sus filiales tiene como filial a alguna de sus propietarias
+    2 Ciclos entre sociedades filiales: una filial tiene como filial a la sociedad seleccionada o a alguna de sus filiales
+    3 Ciclos entre sociedades propietarias: alguna sociedad del árbol es propietaria de si misma a través de alguna de sus propietarias
+
+    Se dice que la sociedad seleccionada tiene participación indirecta en sí misma
+    - Una de sus filiales tiene como filial alguna de las propietarias o a la sociedad seleccionada misma
+    - Si una de sus filiales es directamente una de sus propietarias
+
+- La malla estilo árbol puede ser filtrada por niveles
+- Junto a los filtros de niveles, hay un botón que cambia la visualización del porcentaje de participación
+- El porcentaje de participación puede ser visualizado como porcentaje de participación en la sociedad seleccionada o como porcentaje de participación en la sociedad de nivel superior
+
+- En la vista lateral contextual se muestra información de la sociedad seleccionada
+- La vista lateral contextual muestra una tabla con las sociedades finales que son propietarias de la sociedad seleccionada
+- Una sociedad final es una sociedad que no tiene otras sociedades propietarias
+
+
+- A la derecha del buscador, hay un botón para filtrar la busqueda por fila y columna (sociedades filiales y propietarias)

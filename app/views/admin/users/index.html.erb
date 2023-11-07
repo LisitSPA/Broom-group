@@ -1,0 +1,41 @@
+<h1>Users</h1>
+
+<table class="min-w-full divide-y divide-gray-200">
+  <thead class="bg-gray-50">
+    <tr>
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500">
+        Email
+      </th>
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500">
+        First Name
+      </th>
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500">
+        Last Name
+      </th>
+      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500">
+        Actions
+      </th>
+    </tr>
+  </thead>
+  <tbody class="rounded-md bg-white">
+    <% @users.each do |user| %>
+      <tr>
+        <td class="text-center">
+          <div class="text-sm text-gray-900"><%= user.email %></div>
+        </td>
+        <td class="text-center">
+          <div class="text-sm text-gray-900"><%= user.first_name %></div>
+        </td>
+        <td class="text-center">
+          <div class="text-sm text-gray-900"><%= user.last_name %></div>
+        </td>
+        <td class="text-center text-sm font-medium">
+          <%= button_to 'Edit', edit_admin_user_path(user), method: :get %>
+          <%= button_to 'Delete', admin_user_path(user), method: :delete, data: { confirm: 'Are you sure?' } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to 'New User', new_admin_user_path %>

@@ -1,0 +1,25 @@
+
+// todos las letras realmente representan un firm_id
+source_node = "X"
+
+weighted_adjacency_list = {
+  'X': 	{'D': 0.5,	'E': 1.0},
+  'D': 	{'A': 0.5,	'C': 0.5},
+  'E': 	{'C': 0.3},
+  'A': 	{},
+  'C': 	{'B': 0.1,	'D': 0.2},
+  'B': 	{'A': 0.1}
+}
+
+levels = {
+  "1": {"X": ["D", "E"]},
+  "2": {"D": ["A", "C"], "E": ["C"]},
+  "3": {"C": ["B", "D"]},
+  "4": {"B": ["A"]}
+}
+
+cycles = {
+  4: {"D": ["A", "C"]},
+}
+
+finals = ["A"]

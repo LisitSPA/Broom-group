@@ -1,0 +1,22 @@
+version: '3'
+services:
+  broom-app:
+    build: .
+    command: bundle exec rails server -b '0.0.0.0'
+    volumes:
+      - .:/broom-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db-broom
+  db-broom:
+    image: postgres
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_PASSWORD: broom123*
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+volumes:
+  pg-data:
