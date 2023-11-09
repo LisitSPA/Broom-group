@@ -35,18 +35,23 @@ Este proyecto utiliza **Vite.js** para una construir el frontend. Algunas de las
 3. Ejecutar `docker compose build --no-cache` para construir las imágenes de Docker sin usar caché.
 4. Correr `docker compose run broom-app bundle install` para instalar las gemas de Ruby.
 5. Ejecutar `docker compose run broom-app rails db:create db:migrate db:seed` para configurar la base de datos.
-6. Iniciar con `docker compose up`.
+6. Ejecutar `docker compose run broom-app yarn install`.
+7. Iniciar con `docker compose up`.
 
 ## Conceptos Clave del Proyecto
 
 #### Matriz de Participación
+
 Es una matriz donde cada celda muestra cuánto porcentaje de una sociedad (fila) pertenece a otra sociedad (columna).
 
 #### Grafo Dirigido
+
 Es como un mapa de puntos (sociedades) conectados por flechas (participaciones).
 
 #### Ciclos
+
 Cuando el viaje vuelve a un punto en el grafo siguiendo las flechas.
 
 #### Lista de Adyacencia
+
 Es una lista de todas las sociedades y quiénes están conectadas a ellas.
