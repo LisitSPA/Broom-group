@@ -28,8 +28,8 @@ class FirmProfile < ApplicationRecord
 
 	scope :search, -> (query) {
 		left_joins(:country)
-		.where('title LIKE ? OR description LIKE ? OR rut LIKE ? OR sap_code LIKE ? OR countries.name LIKE ?',
-			"%#{query}%", "%#{query}%", "%#{query}%", "%#{query}%", "%#{query}%")
+		.where('UPPER(title) = ? OR UPPER(rut) = ?',
+		"#{query.upcase}", "#{query.upcase}")
 	}
 
 	def rut=(value)
