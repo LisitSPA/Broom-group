@@ -1,4 +1,14 @@
 class Api::V1::VersionsController < ApplicationController
+
+  # get "api/v1/versions"
+  def index
+    begin      
+        versions = Version.includes(firms: [:investments])
+        render json: versions, each_serializer: VersionFirmsSerializer
+    rescue => exception
+      render json: { message: exception.message }, status: :not_found
+    end
+  end
   
   # get "api/v1/versions/:id"
   def show

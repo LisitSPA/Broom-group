@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
       resources :matrix, only: [:index]
-      resources :versions, only: [:show, :create, :update, :destroy]
+      resources :versions, only: [:index, :show, :create, :update, :destroy]
       resources :firm_profiles, only: [:index, :create, :update, :destroy]
       resources :firms, only: [:show]
     end
