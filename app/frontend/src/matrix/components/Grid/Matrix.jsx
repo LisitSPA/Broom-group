@@ -1,18 +1,27 @@
-import React from 'react'
-import RowFirmCard from './RowFirmCard'
-import Cell from './Cell'
-import { useSelector } from 'react-redux'
-import CryptoJS from 'crypto-js'
+import React from "react";
+import RowFirmCard from "./RowFirmCard";
+import Cell from "./Cell";
+import { useSelector } from "react-redux";
+import CryptoJS from "crypto-js";
 
 const Matrix = () => {
-  const { actualVersion } = useSelector(state => state)
-  const { firms, firmsSignature, investorsSignature } = actualVersion.response
-  
-  const firmsProfileIdsString = firms.map(firm => firm.firmProfileId).sort((a, b) => a - b).join('')
-  const firmsHash = CryptoJS.SHA256(firmsProfileIdsString).toString()
+  const { actualVersion } = useSelector((state) => state);
+  const { firms, firmsSignature, investorsSignature } = actualVersion.response;
 
-  const investorsProfileIdsString = firms.map(firm => firm.investors.map(investor => investor.ownerFirmProfileId).flat()).flat().sort((a, b) => a - b).join('')
-  const investorsHash = CryptoJS.SHA256(investorsProfileIdsString).toString()
+  const firmsProfileIdsString = firms
+    .map((firm) => firm.firmProfileId)
+    .sort((a, b) => a - b)
+    .join("");
+  const firmsHash = CryptoJS.SHA256(firmsProfileIdsString).toString();
+
+  const investorsProfileIdsString = firms
+    .map((firm) =>
+      firm.investors.map((investor) => investor.ownerFirmProfileId).flat()
+    )
+    .flat()
+    .sort((a, b) => a - b)
+    .join("");
+  const investorsHash = CryptoJS.SHA256(investorsProfileIdsString).toString();
 
   return (
     <>
@@ -35,7 +44,7 @@ const Matrix = () => {
         </div>
       ))}
     </>
-  )
-}
+  );
+};
 
-export default Matrix
+export default Matrix;

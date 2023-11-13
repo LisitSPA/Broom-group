@@ -14,6 +14,7 @@ import {
   createFirmProfileReducer,
   deleteFirmProfileReducer,
   updateFirmProfileReducer,
+  searchFirmProfileReducer,
 } from "./firm_profiles";
 
 export default combineReducers({
@@ -27,5 +28,6 @@ export default combineReducers({
   firmProfile: firmProfilesReducer,
   createFirmProfile: createFirmProfileReducer,
   deleteFirmProfile: deleteFirmProfileReducer,
-  updateFirmProfile: updateFirmProfileReducer
+  updateFirmProfile: updateFirmProfileReducer,
+  searchFirmProfile: searchFirmProfileReducer,
 });

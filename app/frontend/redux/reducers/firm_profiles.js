@@ -11,7 +11,10 @@ import {
   FIRM_PROFILE_UPDATE,
   FIRM_PROFILE_UPDATE_SUCCESS,
   FIRM_PROFILE_UPDATE_ERROR,
-} from '../actions/firm_profiles';
+  SEARCH_FIRM_PROFILE,
+  SEARCH_FIRM_PROFILE_SUCCESS,
+  SEARCH_FIRM_PROFILE_ERROR,
+} from "../actions/firm_profiles";
 
 const firmProfilesReducer = (state = defaultState, action) => {
   switch (action.type) {
@@ -19,23 +22,23 @@ const firmProfilesReducer = (state = defaultState, action) => {
       return {
         ...state,
         isFetching: true,
-      }
+      };
     case FIRM_PROFILE_SUCCESS:
       return {
         ...state,
         isFetching: false,
         response: action.payload,
-      }
+      };
     case FIRM_PROFILE_ERROR:
       return {
         ...state,
         isFetching: false,
         errors: action.payload,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
 
 const createFirmProfileReducer = (state = defaultState, action) => {
   switch (action.type) {
@@ -43,23 +46,23 @@ const createFirmProfileReducer = (state = defaultState, action) => {
       return {
         ...state,
         isFetching: true,
-      }
+      };
     case FIRM_PROFILE_CREATE_SUCCESS:
       return {
         ...state,
         isFetching: false,
         response: action.payload,
-      }
+      };
     case FIRM_PROFILE_CREATE_ERROR:
       return {
         ...state,
         isFetching: false,
         errors: action.payload,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
 
 const deleteFirmProfileReducer = (state = defaultDeleteState, action) => {
   switch (action.type) {
@@ -67,23 +70,23 @@ const deleteFirmProfileReducer = (state = defaultDeleteState, action) => {
       return {
         ...state,
         isFetching: true,
-      }
+      };
     case FIRM_PROFILE_DELETE_SUCCESS:
       return {
         ...state,
         isFetching: false,
         response: action.payload,
-      }
+      };
     case FIRM_PROFILE_DELETE_ERROR:
       return {
         ...state,
         isFetching: false,
         errors: action.payload,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
 
 const updateFirmProfileReducer = (state = defaultState, action) => {
   switch (action.type) {
@@ -91,23 +94,47 @@ const updateFirmProfileReducer = (state = defaultState, action) => {
       return {
         ...state,
         isFetching: true,
-      }
+      };
     case FIRM_PROFILE_UPDATE_SUCCESS:
       return {
         ...state,
         isFetching: false,
         response: action.payload,
-      }
+      };
     case FIRM_PROFILE_UPDATE_ERROR:
       return {
         ...state,
         isFetching: false,
         errors: action.payload,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
+
+const searchFirmProfileReducer = (state = defaultState, action) => {
+  switch (action.type) {
+    case SEARCH_FIRM_PROFILE:
+      return {
+        ...state,
+        isFetching: true,
+      };
+    case SEARCH_FIRM_PROFILE_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        response: action.payload,
+      };
+    case SEARCH_FIRM_PROFILE_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        errors: action.payload,
+      };
+    default:
+      return state;
+  }
+};
 
 const defaultState = {
   isFetching: false,
@@ -119,18 +146,19 @@ const defaultState = {
     rut: null,
     sapCode: null,
     country: null,
-  }
-}
+  },
+};
 
 const defaultDeleteState = {
   isFetching: false,
   errors: null,
-  response: {}
-}
+  response: {},
+};
 
 export {
   firmProfilesReducer,
   createFirmProfileReducer,
   deleteFirmProfileReducer,
   updateFirmProfileReducer,
-}
+  searchFirmProfileReducer,
+};

@@ -1,30 +1,33 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-} from 'react'
+import React, { useState, useEffect, useRef } from "react";
 import {
   SearchIcon,
   ColsIcon,
   RowsIcon,
   TableCellsIcon,
-} from '../../../assets/Icons'
+} from "../../../assets/Icons";
 import { motion, AnimatePresence } from "framer-motion";
-import useOutsideClick from '../../../hooks/useOutsideClick';
-import Filters from './Filters';
-
+import useOutsideClick from "../../../hooks/useOutsideClick";
+import Filters from "./Filters";
+import { useDispatch } from "react-redux";
+import { searchFirmProfile } from "@/redux/actions/firm_profiles";
 
 const SearchBar = () => {
-  const filterOptions = [
-    'col',
-    'row',
-    'rowAndCols'
-  ]
+  const dispatch = useDispatch();
+  const filterOptions = ["col", "row", "rowAndCols"];
+  const [searchValue, setSearchValue] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedFilterOption, setSelectedFilterOption] = useState(
+    filterOptions[0]
+  );
+  const [selectedIcon, setSelectedIcon] = useState(
+    <TableCellsIcon className="w-4 h-4 stroke-2" />
+  );
 
-  const [searchValue, setSearchValue] = useState('')
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [selectedFilterOption, setSelectedFilterOption] = useState(filterOptions[0])
-  const [selectedIcon, setSelectedIcon] = useState(<TableCellsIcon className='w-4 h-4 stroke-2' />)
+  const handlerSearchValue = (e) => {
+    const inputValue = e.target.value;
+    setSearchValue(inputValue);
+    dispatch(searchFirmProfile(inputValue));
+  };
 
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -35,43 +38,47 @@ const SearchBar = () => {
 
   useEffect(() => {
     switch (selectedFilterOption) {
-      case 'col':
-        setSelectedIcon(<ColsIcon />)
+      case "col":
+        setSelectedIcon(<ColsIcon />);
         break;
-      case 'row':
-        setSelectedIcon(<RowsIcon />)
+      case "row":
+        setSelectedIcon(<RowsIcon />);
         break;
-      case 'rowAndCols':
-        setSelectedIcon(<TableCellsIcon />)
+      case "rowAndCols":
+        setSelectedIcon(<TableCellsIcon />);
         break;
       default:
         break;
     }
-  }, [selectedFilterOption])
+  }, [selectedFilterOption]);
 
   const handleFilterOptionClick = () => {
-    const nextFilterOptionIdx = (filterOptions.indexOf(selectedFilterOption) + 1) % filterOptions.length
-    setSelectedFilterOption(filterOptions[nextFilterOptionIdx])
-  }
+    const nextFilterOptionIdx =
+      (filterOptions.indexOf(selectedFilterOption) + 1) % filterOptions.length;
+    setSelectedFilterOption(filterOptions[nextFilterOptionIdx]);
+  };
 
   const handleOpenDropdown = () => {
-    if (!showDropdown) setShowDropdown(true)
-  }
+    if (!showDropdown) setShowDropdown(true);
+  };
 
   return (
     <>
       <div className="flex w-full relative">
-        <button ref={buttonRef} className='flex items-center justify-center h-8 w-8 bg-slate-50 rounded-l-md border-gray-300 border-y border-l'>
-          <SearchIcon className='w-4 h-4 stroke-2' />
+        <button
+          ref={buttonRef}
+          className="flex items-center justify-center h-8 w-8 bg-slate-50 rounded-l-md border-gray-300 border-y border-l"
+        >
+          <SearchIcon className="w-4 h-4 stroke-2" />
         </button>
         <input
           type="text"
           placeholder="Buscar por nombre o rut"
-          onClick={handleOpenDropdown}
+          onChange={handlerSearchValue}
           className="w-full h-8 border-gray-300 bg-slate-50 font-light placeholder:text-gray-400 text-sm rounded-r-md border-y border-r focus:outline-none"
         />
 
-        <AnimatePresence>
+        {/* <AnimatePresence>
           {showDropdown && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -90,16 +97,19 @@ const SearchBar = () => {
               <Filters />
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence> */}
       </div>
 
-      <button className="border border-gray-300 bg-slate-50 px-2 rounded-md text-gray-400 hover:text-gray-900 hover:border-gray-400" onClick={handleFilterOptionClick}>
+      {/* <button
+        className="border border-gray-300 bg-slate-50 px-2 rounded-md text-gray-400 hover:text-gray-900 hover:border-gray-400"
+        onClick={handleFilterOptionClick}
+      >
         {React.cloneElement(selectedIcon, {
-          className: 'w-4 h-4 stroke-2',
+          className: "w-4 h-4 stroke-2",
         })}
-      </button>
+      </button> */}
     </>
-  )
-}
+  );
+};
 
-export default SearchBar
+export default SearchBar;
