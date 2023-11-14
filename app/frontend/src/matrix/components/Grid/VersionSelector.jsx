@@ -47,7 +47,7 @@ const VersionSelector = () => {
             className="flex w-full rounded-l-md text-center bg-white text-sm pl-8 outline-none cursor-pointer"
             onClick={handleOpenDropdown}
           >
-            {selectedVersion}
+            <p style={{ marginTop: "2px" }}>{selectedVersion}</p>
           </div>
           <button
             className="flex justify-center items-center w-8 bg-white rounded-r-md"

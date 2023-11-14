@@ -8,13 +8,12 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import useOutsideClick from "../../../hooks/useOutsideClick";
 import Filters from "./Filters";
-import { useDispatch } from "react-redux";
-import { searchFirmProfile } from "@/redux/actions/firm_profiles";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchText } from "@/redux/actions/versions";
 
 const SearchBar = () => {
-  const dispatch = useDispatch();
   const filterOptions = ["col", "row", "rowAndCols"];
-  const [searchValue, setSearchValue] = useState("");
+
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedFilterOption, setSelectedFilterOption] = useState(
     filterOptions[0]
@@ -23,12 +22,6 @@ const SearchBar = () => {
     <TableCellsIcon className="w-4 h-4 stroke-2" />
   );
 
-  const handlerSearchValue = (e) => {
-    const inputValue = e.target.value;
-    setSearchValue(inputValue);
-    dispatch(searchFirmProfile(inputValue));
-  };
-
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
 
@@ -36,30 +29,37 @@ const SearchBar = () => {
     if (showDropdown) setShowDropdown(false);
   });
 
+  // useEffect(() => {
+  //   switch (selectedFilterOption) {
+  //     case "col":
+  //       setSelectedIcon(<ColsIcon />);
+  //       break;
+  //     case "row":
+  //       setSelectedIcon(<RowsIcon />);
+  //       break;
+  //     case "rowAndCols":
+  //       setSelectedIcon(<TableCellsIcon />);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }, [selectedFilterOption]);
+
+  // const handleFilterOptionClick = () => {
+  //   const nextFilterOptionIdx =
+  //     (filterOptions.indexOf(selectedFilterOption) + 1) % filterOptions.length;
+  //   setSelectedFilterOption(filterOptions[nextFilterOptionIdx]);
+  // };
+  const [searchValue, setSearchValue] = useState("");
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    switch (selectedFilterOption) {
-      case "col":
-        setSelectedIcon(<ColsIcon />);
-        break;
-      case "row":
-        setSelectedIcon(<RowsIcon />);
-        break;
-      case "rowAndCols":
-        setSelectedIcon(<TableCellsIcon />);
-        break;
-      default:
-        break;
-    }
-  }, [selectedFilterOption]);
+    dispatch(setSearchText(searchValue));
+  }, [searchValue, dispatch]);
 
-  const handleFilterOptionClick = () => {
-    const nextFilterOptionIdx =
-      (filterOptions.indexOf(selectedFilterOption) + 1) % filterOptions.length;
-    setSelectedFilterOption(filterOptions[nextFilterOptionIdx]);
-  };
-
-  const handleOpenDropdown = () => {
-    if (!showDropdown) setShowDropdown(true);
+  const handleOpenDropdown = (e) => {
+    const text = e.target.value;
+    setSearchValue(text);
   };
 
   return (
@@ -74,11 +74,11 @@ const SearchBar = () => {
         <input
           type="text"
           placeholder="Buscar por nombre o rut"
-          onChange={handlerSearchValue}
+          onChange={handleOpenDropdown}
           className="w-full h-8 border-gray-300 bg-slate-50 font-light placeholder:text-gray-400 text-sm rounded-r-md border-y border-r focus:outline-none"
         />
 
-        {/* <AnimatePresence>
+        <AnimatePresence>
           {showDropdown && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -86,18 +86,25 @@ const SearchBar = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.1 }}
               ref={dropdownRef}
-              className='absolute w-full bg-white px-5 py-3 rounded-md top-9 shadow-lg border max-h-80 overflow-auto'>
-              <h2 className='text-base font-normal'>Resultados</h2>
-              <ul className='font-light text-sm select-none cursor-pointer'>
-                <li className='px-2 py-1 rounded-md hover:bg-slate-50'>This is a result</li>
-                <li className='px-2 py-1 rounded-md hover:bg-slate-50'>This is a result</li>
-                <li className='px-2 py-1 rounded-md hover:bg-slate-50'>This is a result</li>
+              className="absolute w-full bg-white px-5 py-3 rounded-md top-9 shadow-lg border max-h-80 overflow-auto"
+            >
+              <h2 className="text-base font-normal">Resultados</h2>
+              <ul className="font-light text-sm select-none cursor-pointer">
+                <li className="px-2 py-1 rounded-md hover:bg-slate-50">
+                  This is a result
+                </li>
+                <li className="px-2 py-1 rounded-md hover:bg-slate-50">
+                  This is a result
+                </li>
+                <li className="px-2 py-1 rounded-md hover:bg-slate-50">
+                  This is a result
+                </li>
               </ul>
-              <hr className='my-2' />
+              <hr className="my-2" />
               <Filters />
             </motion.div>
           )}
-        </AnimatePresence> */}
+        </AnimatePresence>
       </div>
 
       {/* <button

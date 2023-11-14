@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Sidebar } from "@/src/shared";
 import MatrixContainer from "./components/MatrixContainer";
 import Modal from "./components/Modal/Modal";
@@ -9,15 +9,18 @@ import { callVersion } from "@/redux/actions/versions";
 
 const Matrix = () => {
   const dispatch = useDispatch();
-  const selectedVersion = useSelector((state) => state.selectedVersion);
+  const selectedVersion = useSelector(
+    (state) => state.selectedVersion.selectedVersion
+  );
+  const searchText = useSelector((state) => state.searchText.searchText);
 
   useEffect(() => {
     dispatch(callMatrix());
   }, []);
 
   useEffect(() => {
-    dispatch(callVersion(selectedVersion, "A"));
-  }, [dispatch, selectedVersion]);
+    dispatch(callVersion(selectedVersion, searchText));
+  }, [selectedVersion, searchText]);
 
   return (
     <>

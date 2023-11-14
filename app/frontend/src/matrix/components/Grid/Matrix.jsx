@@ -23,6 +23,10 @@ const Matrix = () => {
     .join("");
   const investorsHash = CryptoJS.SHA256(investorsProfileIdsString).toString();
 
+  if (!firms?.length) {
+    return <p style={{ margin: "1rem" }}>No se encotraron resultados!</p>;
+  }
+
   return (
     <>
       {firms?.map((subsidiary_firm, subsidiary_idx) => (

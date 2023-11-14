@@ -15,7 +15,8 @@ export const DELETE_VERSION_ERROR = "@@versions/version/DELETE_ERROR";
 export const UPDATE_VERSION = "@@versions/version/PUT";
 export const UPDATE_VERSION_SUCCESS = "@@versions/version/PUT_SUCCESS";
 export const UPDATE_VERSION_ERROR = "@@versions/version/PUT_ERROR";
-export const UPDATE_SELECTED_VERSION = "@@versions/version/GET";
+export const UPDATE_SELECTED_VERSION = "@@versions/version/selector";
+export const SET_SEARCH_TEXT = "@@versions/version/search";
 
 export const callVersion = (version_id, search_text, onSuccess, onFailure) => {
   let url = `/versions/${version_id}`;
@@ -75,4 +76,9 @@ export const updateVersion = (version_id, body, onSuccess, onFailure) => {
 export const updateSelectedVersion = (versionName) => ({
   type: UPDATE_SELECTED_VERSION,
   payload: versionName,
+});
+
+export const setSearchText = (searchText) => ({
+  type: SET_SEARCH_TEXT,
+  payload: searchText,
 });

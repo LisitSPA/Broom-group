@@ -10,6 +10,7 @@ import {
   deleteVersionReducer,
   updateVersionReducer,
   selectedVersionReducer,
+  searchTextReducer,
 } from "./versions";
 import {
   firmProfilesReducer,
@@ -34,4 +35,5 @@ export default combineReducers({
   updateFirmProfile: updateFirmProfileReducer,
   searchFirmProfile: searchFirmProfileReducer,
   selectedVersion: selectedVersionReducer,
+  searchText: searchTextReducer,
 });

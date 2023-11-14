@@ -15,6 +15,7 @@ import {
   VERSIONS_LIST_SUCCESS,
   VERSIONS_LIST_ERROR,
   UPDATE_SELECTED_VERSION,
+  SET_SEARCH_TEXT,
 } from "../actions/versions";
 
 const defaultState = {
@@ -32,6 +33,13 @@ const versionDefaultState = {
     investorsSignature: null,
     firms: [],
   },
+};
+const defaultSelectedVersionState = {
+  selectedVersion: "",
+};
+
+const defaultSearchTextState = {
+  searchText: "",
 };
 
 const versionReducer = (state = versionDefaultState, action) => {
@@ -154,15 +162,32 @@ const updateVersionReducer = (state = defaultState, action) => {
   }
 };
 
-const selectedVersionReducer = (state = defaultState, action) => {
+const selectedVersionReducer = (
+  state = defaultSelectedVersionState,
+  action
+) => {
   switch (action.type) {
     case UPDATE_SELECTED_VERSION:
-      return action.payload;
+      return {
+        ...state,
+        selectedVersion: action.payload,
+      };
     default:
       return state;
   }
 };
+const searchTextReducer = (state = defaultSearchTextState, action) => {
+  switch (action.type) {
+    case SET_SEARCH_TEXT:
+      return {
+        ...state,
+        searchText: action.payload,
+      };
 
+    default:
+      return state;
+  }
+};
 export {
   versionReducer,
   createVersionReducer,
@@ -170,4 +195,5 @@ export {
   updateVersionReducer,
   versionListReducer,
   selectedVersionReducer,
+  searchTextReducer,
 };
