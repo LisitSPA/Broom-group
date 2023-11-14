@@ -9,14 +9,14 @@ const Matrix = () => {
   const { firms, firmsSignature, investorsSignature } = actualVersion.response;
 
   const firmsProfileIdsString = firms
-    .map((firm) => firm.firmProfileId)
+    ?.map((firm) => firm.firmProfileId)
     .sort((a, b) => a - b)
     .join("");
   const firmsHash = CryptoJS.SHA256(firmsProfileIdsString).toString();
 
   const investorsProfileIdsString = firms
-    .map((firm) =>
-      firm.investors.map((investor) => investor.ownerFirmProfileId).flat()
+    ?.map((firm) =>
+      firm?.investors?.map((investor) => investor.ownerFirmProfileId).flat()
     )
     .flat()
     .sort((a, b) => a - b)
@@ -25,7 +25,7 @@ const Matrix = () => {
 
   return (
     <>
-      {firms.map((subsidiary_firm, subsidiary_idx) => (
+      {firms?.map((subsidiary_firm, subsidiary_idx) => (
         <div className="flex hover:outline hover:outline-1 outline-TealBlue/60">
           <RowFirmCard
             key={subsidiary_idx}
@@ -33,7 +33,7 @@ const Matrix = () => {
             firmRut={subsidiary_firm.rut}
           />
 
-          {firms.map((owner_firm, owner_idx) => (
+          {firms?.map((owner_firm, owner_idx) => (
             <Cell
               key={owner_idx}
               subsidiaryProfileId={subsidiary_firm.firmProfileId}

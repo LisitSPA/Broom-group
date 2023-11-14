@@ -3,6 +3,9 @@ import { apiAction } from "./api";
 export const VERSIONS = "@@versions/version/GET";
 export const VERSIONS_SUCCESS = "@@versions/version/GET_SUCCESS";
 export const VERSIONS_ERROR = "@@versions/version/GET_ERROR";
+export const VERSIONS_LIST = "@@versions/version/GET";
+export const VERSIONS_LIST_SUCCESS = "@@versions/version/GET_SUCCESS";
+export const VERSIONS_LIST_ERROR = "@@versions/version/GET_ERROR";
 export const CREATE_VERSION = "@@versions/version/POST";
 export const CREATE_VERSION_SUCCESS = "@@versions/version/POST_SUCCESS";
 export const CREATE_VERSION_ERROR = "@@versions/version/POST_ERROR";
@@ -12,17 +15,31 @@ export const DELETE_VERSION_ERROR = "@@versions/version/DELETE_ERROR";
 export const UPDATE_VERSION = "@@versions/version/PUT";
 export const UPDATE_VERSION_SUCCESS = "@@versions/version/PUT_SUCCESS";
 export const UPDATE_VERSION_ERROR = "@@versions/version/PUT_ERROR";
+export const UPDATE_SELECTED_VERSION = "@@versions/version/GET";
 
-export const callVersion = (version_id, onSuccess, onFailure) => {
+export const callVersion = (version_id, search_text, onSuccess, onFailure) => {
+  let url = `/versions/${version_id}`;
+  if (search_text) {
+    url += `?search_text=${search_text}`;
+  }
   return apiAction({
     label: VERSIONS,
     method: "GET",
-    url: `/versions/${version_id}`,
+    url: url,
     onSuccess: onSuccess,
     onFailure: onFailure,
   });
-}
+};
 
+export const callVersions = (onSuccess, onFailure) => {
+  return apiAction({
+    label: VERSIONS_LIST,
+    method: "GET",
+    url: `/versions`,
+    onSuccess: onSuccess,
+    onFailure: onFailure,
+  });
+};
 export const createVersion = (body, onSuccess, onFailure) => {
   return apiAction({
     label: CREATE_VERSION,
@@ -32,7 +49,7 @@ export const createVersion = (body, onSuccess, onFailure) => {
     onSuccess: onSuccess,
     onFailure: onFailure,
   });
-}
+};
 
 export const deleteVersion = (version_id, onSuccess, onFailure) => {
   return apiAction({
@@ -42,7 +59,7 @@ export const deleteVersion = (version_id, onSuccess, onFailure) => {
     onSuccess: onSuccess,
     onFailure: onFailure,
   });
-}
+};
 
 export const updateVersion = (version_id, body, onSuccess, onFailure) => {
   return apiAction({
@@ -53,4 +70,9 @@ export const updateVersion = (version_id, body, onSuccess, onFailure) => {
     onSuccess: onSuccess,
     onFailure: onFailure,
   });
-}
+};
+
+export const updateSelectedVersion = (versionName) => ({
+  type: UPDATE_SELECTED_VERSION,
+  payload: versionName,
+});

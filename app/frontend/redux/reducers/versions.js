@@ -1,5 +1,6 @@
 import {
   VERSIONS,
+  VERSIONS_LIST,
   VERSIONS_SUCCESS,
   VERSIONS_ERROR,
   CREATE_VERSION,
@@ -11,13 +12,16 @@ import {
   UPDATE_VERSION,
   UPDATE_VERSION_SUCCESS,
   UPDATE_VERSION_ERROR,
-} from '../actions/versions'
+  VERSIONS_LIST_SUCCESS,
+  VERSIONS_LIST_ERROR,
+  UPDATE_SELECTED_VERSION,
+} from "../actions/versions";
 
 const defaultState = {
   isFetching: false,
   errors: null,
   response: null,
-}
+};
 
 const versionDefaultState = {
   isFetching: false,
@@ -28,7 +32,7 @@ const versionDefaultState = {
     investorsSignature: null,
     firms: [],
   },
-}
+};
 
 const versionReducer = (state = versionDefaultState, action) => {
   switch (action.type) {
@@ -36,23 +40,47 @@ const versionReducer = (state = versionDefaultState, action) => {
       return {
         ...state,
         isFetching: true,
-      }
+      };
     case VERSIONS_SUCCESS:
       return {
         ...state,
         isFetching: false,
         response: action.payload,
-      }
+      };
     case VERSIONS_ERROR:
       return {
         ...state,
         isFetching: false,
         errors: action.payload.response.data,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
+
+const versionListReducer = (state = defaultState, action) => {
+  switch (action.type) {
+    case VERSIONS_LIST:
+      return {
+        ...state,
+        isFetching: true,
+      };
+    case VERSIONS_LIST_SUCCESS:
+      return {
+        ...state,
+        isFetching: false,
+        response: action.payload,
+      };
+    case VERSIONS_LIST_ERROR:
+      return {
+        ...state,
+        isFetching: false,
+        errors: action.payload.response.data,
+      };
+    default:
+      return state;
+  }
+};
 
 const createVersionReducer = (state = defaultState, action) => {
   switch (action.type) {
@@ -60,23 +88,23 @@ const createVersionReducer = (state = defaultState, action) => {
       return {
         ...state,
         isFetching: true,
-      }
+      };
     case CREATE_VERSION_SUCCESS:
       return {
         ...state,
         isFetching: false,
         response: action.payload,
-      }
+      };
     case CREATE_VERSION_ERROR:
       return {
         ...state,
         isFetching: false,
         errors: action.payload,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
 
 const deleteVersionReducer = (state = defaultState, action) => {
   switch (action.type) {
@@ -84,23 +112,23 @@ const deleteVersionReducer = (state = defaultState, action) => {
       return {
         ...state,
         isFetching: true,
-      }
+      };
     case DELETE_VERSION_SUCCESS:
       return {
         ...state,
         isFetching: false,
         response: action.payload,
-      }
+      };
     case DELETE_VERSION_ERROR:
       return {
         ...state,
         isFetching: false,
         errors: action.payload,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
 
 const updateVersionReducer = (state = defaultState, action) => {
   switch (action.type) {
@@ -108,28 +136,38 @@ const updateVersionReducer = (state = defaultState, action) => {
       return {
         ...state,
         isFetching: true,
-      }
+      };
     case UPDATE_VERSION_SUCCESS:
       return {
         ...state,
         isFetching: false,
         response: action.payload,
-      }
+      };
     case UPDATE_VERSION_ERROR:
       return {
         ...state,
         isFetching: false,
         errors: action.payload,
-      }
+      };
     default:
-      return state
+      return state;
   }
-}
+};
 
+const selectedVersionReducer = (state = defaultState, action) => {
+  switch (action.type) {
+    case UPDATE_SELECTED_VERSION:
+      return action.payload;
+    default:
+      return state;
+  }
+};
 
 export {
   versionReducer,
   createVersionReducer,
   deleteVersionReducer,
   updateVersionReducer,
-}
+  versionListReducer,
+  selectedVersionReducer,
+};

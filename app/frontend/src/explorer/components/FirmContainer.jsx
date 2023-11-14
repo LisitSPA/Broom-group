@@ -8,7 +8,7 @@ const FirmContainer = () => {
 
   return (
     <div className='flex flex-col gap-6 justify-between w-8/12 items-center mx-auto my-12'>
-      {firms.map((firm, index) => (
+      {firms?.map((firm, index) => (
         <Firm
           key={index}
           firm={firm}

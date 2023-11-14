@@ -1,14 +1,29 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector, useDispatch } from "react-redux";
+import { callVersions, updateSelectedVersion } from "@/redux/actions/versions";
 
 const VersionSelector = () => {
+  const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState("Elegir versión");
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
+  const { matrix } = useSelector((state) => state);
+  const { lastVersionId } = matrix.response;
+
+  useEffect(() => {
+    dispatch(updateSelectedVersion(lastVersionId));
+  }, []);
 
   useOutsideClick(dropdownRef, buttonRef, () => handleCloseDropdown());
+
+  useEffect(() => {
+    dispatch(callVersions());
+  }, []);
+
+  const versionList = useSelector((state) => state.versionList.response);
 
   const handleOpenDropdown = () => {
     if (!isOpen) setIsOpen(true);
@@ -18,8 +33,9 @@ const VersionSelector = () => {
     if (isOpen) setIsOpen(false);
   };
 
-  const handleVersionSelect = (version) => {
-    setSelectedVersion(version);
+  const handleVersionSelect = (versionId) => {
+    dispatch(updateSelectedVersion(versionId));
+    setSelectedVersion(`Versión ${versionId}`);
     handleCloseDropdown();
   };
 
@@ -66,30 +82,15 @@ const VersionSelector = () => {
               transition={{ duration: 0.1 }}
             >
               <ul className="w-full text-center text-sm">
-                <li
-                  className="py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleVersionSelect("Versión 1")}
-                >
-                  Versión 1
-                </li>
-                <li
-                  className="py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleVersionSelect("Versión 2")}
-                >
-                  Versión 2
-                </li>
-                <li
-                  className="py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleVersionSelect("Versión 3")}
-                >
-                  Versión 3
-                </li>
-                <li
-                  className="py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleVersionSelect("Versión 4")}
-                >
-                  Versión 4
-                </li>
+                {[versionList]?.map((item, index) => (
+                  <li
+                    key={index}
+                    className="py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleVersionSelect(index + 1)}
+                  >
+                    {`Versión ${index + 1}`}
+                  </li>
+                ))}
               </ul>
             </motion.div>
           )}
