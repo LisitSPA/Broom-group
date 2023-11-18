@@ -10,7 +10,7 @@ Rails.application.routes.draw do
       resources :matrix, only: [:index]
       resources :versions, only: [:index, :show, :create, :update, :destroy]
       resources :firm_profiles, only: [:index, :create, :update, :destroy]
-      resources :firms, only: [:show]
+      resources :firms, only: [:show, :destroy]
     end
   end
 

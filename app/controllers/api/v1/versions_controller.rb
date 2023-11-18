@@ -14,29 +14,7 @@ class Api::V1::VersionsController < ApplicationController
   def show
     begin
       version = Version.includes(firms: [:investments]).find(params[:id])
-
-      # Almacenamos la version_id
-      version_id = Version.where(id: params[:id]).pluck(:id)
-
-      # Accede al arreglo de objetos "firms" desde la variable de instancia version
-      firms_array = version.firms
-      # Convierte cada objeto Firm a JSON utilizando el serializador FirmSerializer
-      json_firms_array = firms_array.map { |firm| FirmSerializer.new(firm).as_json }
-
-      # texto de búsqueda
-      search_text = params[:search_text]
-      # Filtramos por el texto de búsqueda
-      filtered_firms = json_firms_array.select do |firm|
-        (firm[:rut].to_s.downcase =~ /^#{search_text.to_s.downcase}/) || (firm[:title].to_s.downcase =~ /^#{search_text.to_s.downcase}/)
-      end
-      
-      response_hash = {
-        versionId: version_id[0],
-        firms: filtered_firms
-      }
-
-      # render json: json_firms_array #json: version, serializer: VersionFirmsSerializer
-      render json:response_hash 
+      render json: version, serializer: VersionFirmsSerializer
     rescue => exception
       render json: { message: exception.message }, status: :not_found
     end
