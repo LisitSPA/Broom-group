@@ -9,7 +9,7 @@ const Matrix = () => {
   const { firms, filteredData, firmsSignature, investorsSignature } =
     actualVersion.response;
   const listFirms = filteredData || firms;
-  console.log(filteredData, firms);
+
   const firmsProfileIdsString = listFirms
     ?.map((firm) => firm.firmProfileId)
     .sort((a, b) => a - b)
