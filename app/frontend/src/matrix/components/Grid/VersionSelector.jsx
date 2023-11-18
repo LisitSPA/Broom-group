@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
-import { callVersions, updateSelectedVersion } from "@/redux/actions/versions";
+import { updateSelectedVersion } from "@/redux/actions/versions";
 
 const VersionSelector = () => {
   const dispatch = useDispatch();
@@ -11,19 +11,14 @@ const VersionSelector = () => {
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
   const { matrix } = useSelector((state) => state);
-  const { lastVersionId } = matrix.response;
+  const { lastVersionId, versions } = matrix.response;
 
   useEffect(() => {
+    console.log("lastVersionId", lastVersionId);
     dispatch(updateSelectedVersion(lastVersionId));
   }, []);
 
   useOutsideClick(dropdownRef, buttonRef, () => handleCloseDropdown());
-
-  useEffect(() => {
-    dispatch(callVersions());
-  }, []);
-
-  const versionList = useSelector((state) => state.versionList.response);
 
   const handleOpenDropdown = () => {
     if (!isOpen) setIsOpen(true);
@@ -34,6 +29,7 @@ const VersionSelector = () => {
   };
 
   const handleVersionSelect = (versionId) => {
+    console.log("onclick", versionId);
     dispatch(updateSelectedVersion(versionId));
     setSelectedVersion(`Versión ${versionId}`);
     handleCloseDropdown();
@@ -82,7 +78,7 @@ const VersionSelector = () => {
               transition={{ duration: 0.1 }}
             >
               <ul className="w-full text-center text-sm">
-                {[versionList]?.map((item, index) => (
+                {[0, 1, 2, 3, 4]?.map((item, index) => (
                   <li
                     key={index}
                     className="py-2 hover:bg-gray-100 cursor-pointer"

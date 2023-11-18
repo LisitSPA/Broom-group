@@ -6,8 +6,8 @@ import CryptoJS from "crypto-js";
 
 const Matrix = () => {
   const { actualVersion } = useSelector((state) => state);
-  const { firms, firmsSignature, investorsSignature } = actualVersion.response;
-
+  const { firms,filteredData,  firmsSignature, investorsSignature } = actualVersion.response;
+  
   const firmsProfileIdsString = firms
     ?.map((firm) => firm.firmProfileId)
     .sort((a, b) => a - b)

@@ -5,7 +5,6 @@ import modalReducer from "./modal";
 import firmReducer from "./firms";
 import {
   versionReducer,
-  versionListReducer,
   createVersionReducer,
   deleteVersionReducer,
   updateVersionReducer,
@@ -24,7 +23,6 @@ export default combineReducers({
   matrix: matrixReducer,
   modal: modalReducer,
   actualVersion: versionReducer,
-  versionList: versionListReducer,
   createdVersion: createVersionReducer,
   deletedVersion: deleteVersionReducer,
   updatedVersion: updateVersionReducer,
@@ -35,5 +33,4 @@ export default combineReducers({
   updateFirmProfile: updateFirmProfileReducer,
   searchFirmProfile: searchFirmProfileReducer,
   selectedVersion: selectedVersionReducer,
-  searchText: searchTextReducer,
 });

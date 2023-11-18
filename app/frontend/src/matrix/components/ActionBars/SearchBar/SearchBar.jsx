@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   SearchIcon,
   ColsIcon,
@@ -13,7 +13,7 @@ import { setSearchText } from "@/redux/actions/versions";
 
 const SearchBar = () => {
   const filterOptions = ["col", "row", "rowAndCols"];
-
+  const dispatch = useDispatch();
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedFilterOption, setSelectedFilterOption] = useState(
     filterOptions[0]
@@ -51,15 +51,11 @@ const SearchBar = () => {
   //   setSelectedFilterOption(filterOptions[nextFilterOptionIdx]);
   // };
   const [searchValue, setSearchValue] = useState("");
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(setSearchText(searchValue));
-  }, [searchValue, dispatch]);
 
   const handleOpenDropdown = (e) => {
     const text = e.target.value;
     setSearchValue(text);
+    dispatch(setSearchText(text));
   };
 
   return (
