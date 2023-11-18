@@ -29,7 +29,7 @@ const versionDefaultState = {
     firmsSignature: null,
     investorsSignature: null,
     firms: [],
-    filteredData: [],
+    filteredData: null,
   },
 };
 const defaultSelectedVersionState = {
@@ -78,7 +78,7 @@ const versionReducer = (state = versionDefaultState, action) => {
       if (action.payload) {
         filteredData = filterFirms(state.response.firms, action.payload);
       } else {
-        filteredData = state.response.firms.slice();
+        filteredData = null;
       }
       return {
         ...state,

@@ -14,7 +14,6 @@ const VersionSelector = () => {
   const { lastVersionId, versions } = matrix.response;
 
   useEffect(() => {
-    console.log("lastVersionId", lastVersionId);
     dispatch(updateSelectedVersion(lastVersionId));
   }, []);
 
@@ -78,7 +77,7 @@ const VersionSelector = () => {
               transition={{ duration: 0.1 }}
             >
               <ul className="w-full text-center text-sm">
-                {[0, 1, 2, 3, 4]?.map((item, index) => (
+                {versions?.map((item, index) => (
                   <li
                     key={index}
                     className="py-2 hover:bg-gray-100 cursor-pointer"

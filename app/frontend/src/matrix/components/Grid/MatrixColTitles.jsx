@@ -3,11 +3,11 @@ import { useSelector } from "react-redux";
 
 const MatrixColTitles = () => {
   const { actualVersion } = useSelector((state) => state);
-  const { firms } = actualVersion.response;
-
+  const { firms, filteredData } = actualVersion.response;
+  const listFirms = filteredData || firms;
   return (
     <>
-      {firms?.map((firm, index) => (
+      {listFirms?.map((firm, index) => (
         <div
           className="flex w-28 p-3 text-sm pb-3 bg-gray-50 items-end"
           key={index}

@@ -6,15 +6,17 @@ import CryptoJS from "crypto-js";
 
 const Matrix = () => {
   const { actualVersion } = useSelector((state) => state);
-  const { firms,filteredData,  firmsSignature, investorsSignature } = actualVersion.response;
-  
-  const firmsProfileIdsString = firms
+  const { firms, filteredData, firmsSignature, investorsSignature } =
+    actualVersion.response;
+  const listFirms = filteredData || firms;
+  console.log(filteredData, firms);
+  const firmsProfileIdsString = listFirms
     ?.map((firm) => firm.firmProfileId)
     .sort((a, b) => a - b)
     .join("");
   const firmsHash = CryptoJS.SHA256(firmsProfileIdsString).toString();
 
-  const investorsProfileIdsString = firms
+  const investorsProfileIdsString = listFirms
     ?.map((firm) =>
       firm?.investors?.map((investor) => investor.ownerFirmProfileId).flat()
     )
@@ -23,13 +25,13 @@ const Matrix = () => {
     .join("");
   const investorsHash = CryptoJS.SHA256(investorsProfileIdsString).toString();
 
-  if (!firms?.length) {
+  if (!listFirms?.length) {
     return <p style={{ margin: "1rem" }}>No se encotraron resultados!</p>;
   }
 
   return (
     <>
-      {firms?.map((subsidiary_firm, subsidiary_idx) => (
+      {listFirms?.map((subsidiary_firm, subsidiary_idx) => (
         <div className="flex hover:outline hover:outline-1 outline-TealBlue/60">
           <RowFirmCard
             key={subsidiary_idx}
@@ -37,7 +39,7 @@ const Matrix = () => {
             firmRut={subsidiary_firm.rut}
           />
 
-          {firms?.map((owner_firm, owner_idx) => (
+          {listFirms?.map((owner_firm, owner_idx) => (
             <Cell
               key={owner_idx}
               subsidiaryProfileId={subsidiary_firm.firmProfileId}
