@@ -1,5 +1,6 @@
 class VersionFirmsSerializer < ActiveModel::Serializer
   attribute :id, key: :versionId
+  attribute :simulation, key: :isSimulated
   attribute :firmsSignature
   attribute :investorsSignature
   has_many :firms, serializer: FirmInvestmentsSerializer, include_nested_associations: true
