@@ -1,7 +1,4 @@
-import React, {
-  useState,
-  useEffect
-} from 'react'
+import React, { useState, useEffect, memo } from 'react';
 import classNames from 'classnames';
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDownIcon, DotIcon } from '../../shared/assets/Icons'
@@ -19,21 +16,32 @@ const translateLevels = (ownersMap, firms) => {
   }
 }
 
-const Firm = ({firm}) => {
+const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
+  console.log('Firm se está renderizando. searchTerm:', searchTerm);
+  console.log('Firm renderizado. selectAllChecked:', selectAllChecked);
+
   const dispatch = useDispatch();
   const { 
     firmOwnersMap,
     actualVersion
   } = useSelector(state => state);
   const { response } = firmOwnersMap;
-  const { firms } = actualVersion.response;
+  let firms = response ? response.firms : [];
 
-  const [firmId, setFirmId] = useState(firm.firmId)
+  const [firmId, setFirmId] = useState(firm?.firmId || '');
   const [isOpen, setIsOpen] = useState(false)
   const [isChecked, setIsChecked] = useState(false)
   const [firmStructure, setFirmStructure] = useState(null)
-
+  useEffect(() => {
+    setIsChecked(selectAllChecked);
+  }, [selectAllChecked]);
+  if (!firm) {
+    return null;
+  }
+  console.log('aca',selectAllChecked)
+ 
   const handleCheckbox = () => {
+    console.log('entro')
     setIsChecked(!isChecked)
   }
 
@@ -191,6 +199,6 @@ const Firm = ({firm}) => {
       </motion.div>
     </AnimatePresence>
   )
-}
+})
 
 export default Firm
