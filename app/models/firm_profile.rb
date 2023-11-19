@@ -24,7 +24,7 @@ class FirmProfile < ApplicationRecord
 	has_many :firms, dependent: :destroy
 	validates :rut, presence: true, uniqueness: { case_sensitive: false }, rut: true
 	validates :title, presence: true
-	validates :country, presence: true, if: -> { country_id.present? }
+	validates :country, presence: true
 
 	scope :search, -> (query) {
 		left_joins(:country)

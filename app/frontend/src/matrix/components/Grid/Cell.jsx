@@ -1,45 +1,79 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { updateOwnershipPercentage } from "@/redux/actions/versions";
 import classNames from "classnames";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 const Cell = ({ subsidiaryProfileId, ownerProfileId, investors }) => {
-  const { actualVersion } = useSelector((state) => state);
-  const { firms } = actualVersion.response;
-
+  const dispatch = useDispatch();
   const [percentage, setPercentage] = useState(null);
-  const [subsidiary, setSubsidiary] = useState(subsidiaryProfileId);
-  const [owner, setOwner] = useState(ownerProfileId);
+  const selectedVersion = useSelector(
+    (state) => state.selectedVersion.selectedVersion
+  );
+  const {
+    updatedOwnership: { updatedOwnership },
+  } = useSelector((state) => state);
 
   useEffect(() => {
     const investor = investors?.find(
-      (investor) => investor.ownerFirmProfileId === owner
+      (inv) => inv.ownerFirmProfileId === ownerProfileId
     );
+
     if (investor) {
       setPercentage(investor.percentage);
-    }
-  }, []);
-
-  const handleChange = (e) => {
-    if (e.target.value === "0") {
-      setPercentage("");
     } else {
-      setPercentage(e.target.value);
+      setPercentage(null);
     }
-  };
 
-  const setDisabled = () => {
-    if (subsidiary === owner) {
-      return true;
+    const filteredInvestors = investors
+      .filter((inv) => inv.ownerFirmProfileId === ownerProfileId)
+      .map((investor) => ({
+        ...investor,
+        subsidiaryProfileId: investor.ownerFirmProfileId,
+      }));
+    dispatch(updateOwnershipPercentage(filteredInvestors));
+  }, [selectedVersion, ownerProfileId, investors]);
+
+  const handlePercentageChange = (e) => {
+    const newPercentage =
+      e.target.value === "0" ? null : parseFloat(e.target.value) || null;
+
+    setPercentage(newPercentage);
+
+    const existingIndex = updatedOwnership?.findIndex(
+      (ownership) =>
+        ownership.ownerProfileId === ownerProfileId &&
+        ownership.subsidiaryProfileId === subsidiaryProfileId
+    );
+
+    if (existingIndex !== -1) {
+      const owner = {
+        ...updatedOwnership[existingIndex],
+        percentage: newPercentage,
+      };
+
+      const updateOwnersData = [
+        ...updatedOwnership.slice(0, existingIndex),
+        owner,
+        ...updatedOwnership.slice(existingIndex + 1),
+      ];
+
+      dispatch(updateOwnershipPercentage(updateOwnersData));
     } else {
-      return false;
+      const newOwnership = {
+        ownerProfileId: ownerProfileId,
+        subsidiaryProfileId: subsidiaryProfileId,
+        percentage: newPercentage,
+      };
+
+      dispatch(updateOwnershipPercentage([...updatedOwnership, newOwnership]));
     }
   };
 
   const cellClasses = classNames(
     "rounded-md w-full h-full border-none focus:outline-TealBlue text-center px-2",
     {
-      "bg-slate-50": subsidiary === owner,
-      "bg-white": subsidiary !== owner,
+      "bg-slate-50": subsidiaryProfileId === ownerProfileId,
+      "bg-white": subsidiaryProfileId !== ownerProfileId,
     }
   );
 
@@ -51,9 +85,9 @@ const Cell = ({ subsidiaryProfileId, ownerProfileId, investors }) => {
         min="0"
         max="100"
         step="1"
-        value={percentage}
-        onChange={(e) => handleChange(e)}
-        disabled={setDisabled()}
+        value={percentage || ""}
+        onChange={handlePercentageChange}
+        disabled={subsidiaryProfileId === ownerProfileId}
       />
     </div>
   );

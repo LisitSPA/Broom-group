@@ -1,6 +1,5 @@
 import {
   VERSIONS,
-  VERSIONS_LIST,
   VERSIONS_SUCCESS,
   VERSIONS_ERROR,
   CREATE_VERSION,
@@ -12,10 +11,9 @@ import {
   UPDATE_VERSION,
   UPDATE_VERSION_SUCCESS,
   UPDATE_VERSION_ERROR,
-  VERSIONS_LIST_SUCCESS,
-  VERSIONS_LIST_ERROR,
   UPDATE_SELECTED_VERSION,
   SET_SEARCH_TEXT,
+  UPDATE_OWNERSHIP_PERCENTAGE,
 } from "../actions/versions";
 
 const defaultState = {
@@ -32,6 +30,7 @@ const versionDefaultState = {
     firmsSignature: null,
     investorsSignature: null,
     firms: [],
+    filteredData: null,
   },
 };
 const defaultSelectedVersionState = {
@@ -41,6 +40,20 @@ const defaultSelectedVersionState = {
 const defaultSearchTextState = {
   searchText: "",
 };
+
+function filterFirms(array, searchTerm) {
+  const formattedSearch = searchTerm.toLowerCase().replace(/[\.\-]/g, "");
+
+  return array.filter((firm) => {
+    const formattedRut = firm.rut.replace(/[\.\-]/g, "");
+    const formattedName = firm.name.toLowerCase();
+
+    return (
+      formattedName.includes(formattedSearch) ||
+      formattedRut.includes(formattedSearch)
+    );
+  });
+}
 
 const versionReducer = (state = versionDefaultState, action) => {
   switch (action.type) {
@@ -61,30 +74,21 @@ const versionReducer = (state = versionDefaultState, action) => {
         isFetching: false,
         errors: action.payload.response.data,
       };
-    default:
-      return state;
-  }
-};
+    case SET_SEARCH_TEXT:
+      let filteredData = [];
+      if (action.payload) {
+        filteredData = filterFirms(state.response.firms, action.payload);
+      } else {
+        filteredData = null;
+      }
+      return {
+        ...state,
+        response: {
+          ...state.response,
+          filteredData,
+        },
+      };
 
-const versionListReducer = (state = defaultState, action) => {
-  switch (action.type) {
-    case VERSIONS_LIST:
-      return {
-        ...state,
-        isFetching: true,
-      };
-    case VERSIONS_LIST_SUCCESS:
-      return {
-        ...state,
-        isFetching: false,
-        response: action.payload,
-      };
-    case VERSIONS_LIST_ERROR:
-      return {
-        ...state,
-        isFetching: false,
-        errors: action.payload.response.data,
-      };
     default:
       return state;
   }
@@ -176,24 +180,23 @@ const selectedVersionReducer = (
       return state;
   }
 };
-const searchTextReducer = (state = defaultSearchTextState, action) => {
+export const updatedOwnershipReducer = (state = defaultState, action) => {
   switch (action.type) {
-    case SET_SEARCH_TEXT:
+    case UPDATE_OWNERSHIP_PERCENTAGE:
       return {
         ...state,
-        searchText: action.payload,
+        updatedOwnership: action.payload,
       };
 
     default:
       return state;
   }
 };
+
 export {
   versionReducer,
   createVersionReducer,
   deleteVersionReducer,
   updateVersionReducer,
-  versionListReducer,
   selectedVersionReducer,
-  searchTextReducer,
 };

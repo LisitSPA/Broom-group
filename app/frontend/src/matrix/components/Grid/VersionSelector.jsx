@@ -2,28 +2,26 @@ import React, { useEffect, useRef, useState } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
-import { callVersions, updateSelectedVersion } from "@/redux/actions/versions";
+import { updateSelectedVersion } from "@/redux/actions/versions";
 
 const VersionSelector = () => {
   const dispatch = useDispatch();
+  const { matrix } = useSelector((state) => state);
+  const { versions } = matrix.response;
+  const selectedVersion = useSelector(
+    (state) => state.selectedVersion.selectedVersion
+  );
+
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedVersion, setSelectedVersion] = useState("Elegir versión");
+  const [version, setVersion] = useState(`Versión ${selectedVersion}`);
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
-  const { matrix } = useSelector((state) => state);
-  const { lastVersionId } = matrix.response;
 
   useEffect(() => {
-    dispatch(updateSelectedVersion(lastVersionId));
+    dispatch(updateSelectedVersion(1));
   }, []);
 
   useOutsideClick(dropdownRef, buttonRef, () => handleCloseDropdown());
-
-  useEffect(() => {
-    dispatch(callVersions());
-  }, []);
-
-  const versionList = useSelector((state) => state.versionList.response);
 
   const handleOpenDropdown = () => {
     if (!isOpen) setIsOpen(true);
@@ -35,7 +33,7 @@ const VersionSelector = () => {
 
   const handleVersionSelect = (versionId) => {
     dispatch(updateSelectedVersion(versionId));
-    setSelectedVersion(`Versión ${versionId}`);
+    setVersion(`Versión ${versionId}`);
     handleCloseDropdown();
   };
 
@@ -47,7 +45,7 @@ const VersionSelector = () => {
             className="flex w-full rounded-l-md text-center bg-white text-sm pl-8 outline-none cursor-pointer"
             onClick={handleOpenDropdown}
           >
-            <p style={{ marginTop: "2px" }}>{selectedVersion}</p>
+            <p style={{ marginTop: "2px" }}>{version}</p>
           </div>
           <button
             className="flex justify-center items-center w-8 bg-white rounded-r-md"
@@ -82,7 +80,7 @@ const VersionSelector = () => {
               transition={{ duration: 0.1 }}
             >
               <ul className="w-full text-center text-sm">
-                {[versionList]?.map((item, index) => (
+                {versions?.map((item, index) => (
                   <li
                     key={index}
                     className="py-2 hover:bg-gray-100 cursor-pointer"
