@@ -1,14 +1,12 @@
 import { openModal } from "@/redux/actions/modal";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 const SaveChangesButtons = () => {
   const dispatch = useDispatch();
-  const { updatedOwnership } = useSelector((state) => state);
   const handlerSaveChanges = () => {
     dispatch(openModal());
   };
-  console.log("updatedOwnership", updatedOwnership);
   return (
     <>
       <button

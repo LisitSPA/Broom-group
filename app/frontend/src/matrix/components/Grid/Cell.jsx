@@ -9,6 +9,9 @@ const Cell = ({ subsidiaryProfileId, ownerProfileId, investors }) => {
   const selectedVersion = useSelector(
     (state) => state.selectedVersion.selectedVersion
   );
+  const {
+    updatedOwnership: { updatedOwnership },
+  } = useSelector((state) => state);
 
   useEffect(() => {
     const investor = investors?.find(
@@ -20,20 +23,50 @@ const Cell = ({ subsidiaryProfileId, ownerProfileId, investors }) => {
     } else {
       setPercentage(null);
     }
+
+    const filteredInvestors = investors
+      .filter((inv) => inv.ownerFirmProfileId === ownerProfileId)
+      .map((investor) => ({
+        ...investor,
+        subsidiaryProfileId: investor.ownerFirmProfileId,
+      }));
+    dispatch(updateOwnershipPercentage(filteredInvestors));
   }, [selectedVersion, ownerProfileId, investors]);
 
   const handlePercentageChange = (e) => {
     const newPercentage =
       e.target.value === "0" ? null : parseFloat(e.target.value) || null;
+
     setPercentage(newPercentage);
-    const ownerships = [];
-    const updatedOwnership = {
-      ownerProfileId: ownerProfileId,
-      subsidiaryProfileId: subsidiaryProfileId,
-      percentage: newPercentage,
-    };
-    ownerships.push(updatedOwnership);
-    dispatch(updateOwnershipPercentage(ownerships));
+
+    const existingIndex = updatedOwnership?.findIndex(
+      (ownership) =>
+        ownership.ownerProfileId === ownerProfileId &&
+        ownership.subsidiaryProfileId === subsidiaryProfileId
+    );
+
+    if (existingIndex !== -1) {
+      const owner = {
+        ...updatedOwnership[existingIndex],
+        percentage: newPercentage,
+      };
+
+      const updateOwnersData = [
+        ...updatedOwnership.slice(0, existingIndex),
+        owner,
+        ...updatedOwnership.slice(existingIndex + 1),
+      ];
+
+      dispatch(updateOwnershipPercentage(updateOwnersData));
+    } else {
+      const newOwnership = {
+        ownerProfileId: ownerProfileId,
+        subsidiaryProfileId: subsidiaryProfileId,
+        percentage: newPercentage,
+      };
+
+      dispatch(updateOwnershipPercentage([...updatedOwnership, newOwnership]));
+    }
   };
 
   const cellClasses = classNames(

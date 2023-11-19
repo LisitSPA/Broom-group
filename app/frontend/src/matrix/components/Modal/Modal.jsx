@@ -1,12 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeModal } from "@/redux/actions/modal";
 import { createVersion } from "@/redux/actions/versions";
 
 const Modal = () => {
   const dispatch = useDispatch();
-
-  const { modal, matrix } = useSelector((state) => state);
+  const {
+    modal,
+    matrix,
+    updatedOwnership: { updatedOwnership },
+  } = useSelector((state) => state);
   const { isOpen, modalType } = modal;
   const { lastVersionId, matrixId } = matrix.response;
 
@@ -15,26 +18,31 @@ const Modal = () => {
   };
 
   const handleSaveNewVersion = () => {
+    const extractUniqueIds = (data) => {
+      const uniqueIdsSet = new Set();
+      data.forEach((item) => {
+        uniqueIdsSet.add(item.ownerProfileId);
+        uniqueIdsSet.add(item.subsidiaryProfileId);
+      });
+
+      const uniqueIdsArray = Array.from(uniqueIdsSet);
+      return uniqueIdsArray;
+    };
+
+    const uniqueIdsArray = extractUniqueIds(updatedOwnership);
+    
     dispatch(
       createVersion({
         versionData: {
           matrixId: matrixId,
-          authorId: 2,
+          authorId: 1,
           title: `Versión ${lastVersionId + 1}`,
           description: `Versión ${lastVersionId + 1}`,
           isSimulated: false,
           sourceFile: null,
         },
-        firmProfilesIds: [
-
-        ],
-        ownerships: [
-          {
-            ownerProfileId: 1, //sacar de la celda
-            subsidiaryProfileId: 1,
-            percentage: 1,
-          },
-        ],
+        firmProfilesIds: uniqueIdsArray,
+        ownerships: updatedOwnership,
       })
     );
   };

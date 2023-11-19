@@ -16,7 +16,7 @@ const VersionSelector = () => {
   const buttonRef = useRef(null);
 
   useEffect(() => {
-    dispatch(updateSelectedVersion(lastVersionId));
+    dispatch(updateSelectedVersion(1));
   }, []);
 
   useOutsideClick(dropdownRef, buttonRef, () => handleCloseDropdown());
