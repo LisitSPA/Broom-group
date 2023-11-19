@@ -18,6 +18,7 @@ const Matrix = () => {
   }, []);
 
   useEffect(() => {
+    console.log("se actualiza a version:", selectedVersion);
     dispatch(callVersion(selectedVersion));
   }, [selectedVersion]);
 

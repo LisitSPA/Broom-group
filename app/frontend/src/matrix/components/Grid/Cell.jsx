@@ -1,45 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { updateOwnershipPercentage } from "@/redux/actions/versions";
 import classNames from "classnames";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 const Cell = ({ subsidiaryProfileId, ownerProfileId, investors }) => {
-  const { actualVersion } = useSelector((state) => state);
-  const { firms } = actualVersion.response;
-
+  const dispatch = useDispatch();
   const [percentage, setPercentage] = useState(null);
-  const [subsidiary, setSubsidiary] = useState(subsidiaryProfileId);
-  const [owner, setOwner] = useState(ownerProfileId);
+  const selectedVersion = useSelector(
+    (state) => state.selectedVersion.selectedVersion
+  );
 
   useEffect(() => {
     const investor = investors?.find(
-      (investor) => investor.ownerFirmProfileId === owner
+      (inv) => inv.ownerFirmProfileId === ownerProfileId
     );
+
     if (investor) {
       setPercentage(investor.percentage);
-    }
-  }, []);
-
-  const handleChange = (e) => {
-    if (e.target.value === "0") {
-      setPercentage("");
     } else {
-      setPercentage(e.target.value);
+      setPercentage(null);
     }
-  };
+  }, [selectedVersion, ownerProfileId, investors]);
 
-  const setDisabled = () => {
-    if (subsidiary === owner) {
-      return true;
-    } else {
-      return false;
-    }
+  const handlePercentageChange = (e) => {
+    const newPercentage =
+      e.target.value === "0" ? null : parseFloat(e.target.value) || null;
+    setPercentage(newPercentage);
+    const ownerships = [];
+    const updatedOwnership = {
+      ownerProfileId: ownerProfileId,
+      subsidiaryProfileId: subsidiaryProfileId,
+      percentage: newPercentage,
+    };
+    ownerships.push(updatedOwnership);
+    dispatch(updateOwnershipPercentage(ownerships));
   };
 
   const cellClasses = classNames(
     "rounded-md w-full h-full border-none focus:outline-TealBlue text-center px-2",
     {
-      "bg-slate-50": subsidiary === owner,
-      "bg-white": subsidiary !== owner,
+      "bg-slate-50": subsidiaryProfileId === ownerProfileId,
+      "bg-white": subsidiaryProfileId !== ownerProfileId,
     }
   );
 
@@ -51,9 +52,9 @@ const Cell = ({ subsidiaryProfileId, ownerProfileId, investors }) => {
         min="0"
         max="100"
         step="1"
-        value={percentage}
-        onChange={(e) => handleChange(e)}
-        disabled={setDisabled()}
+        value={percentage || ""}
+        onChange={handlePercentageChange}
+        disabled={subsidiaryProfileId === ownerProfileId}
       />
     </div>
   );

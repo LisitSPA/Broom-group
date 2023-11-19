@@ -13,6 +13,7 @@ import {
   UPDATE_VERSION_ERROR,
   UPDATE_SELECTED_VERSION,
   SET_SEARCH_TEXT,
+  UPDATE_OWNERSHIP_PERCENTAGE,
 } from "../actions/versions";
 
 const defaultState = {
@@ -179,20 +180,19 @@ const selectedVersionReducer = (
       return state;
   }
 };
-// const searchTextReducer = (state = versionDefaultState, action) => {
-//   switch (action.type) {
-//     case SET_SEARCH_TEXT:
-//       console.log(state?.response.firms, state, action.payload);
-//       // const filteredData = state?.response.firms;
-//       return {
-//         ...state,
-//         searchText: action.payload,
-//       };
+export const updatedOwnershipReducer = (state = defaultState, action) => {
+  switch (action.type) {
+    case UPDATE_OWNERSHIP_PERCENTAGE:
+      return {
+        ...state,
+        updatedOwnership: action.payload,
+      };
 
-//     default:
-//       return state;
-//   }
-// };
+    default:
+      return state;
+  }
+};
+
 export {
   versionReducer,
   createVersionReducer,

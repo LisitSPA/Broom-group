@@ -9,7 +9,7 @@ import {
   deleteVersionReducer,
   updateVersionReducer,
   selectedVersionReducer,
-  searchTextReducer,
+  updatedOwnershipReducer,
 } from "./versions";
 import {
   firmProfilesReducer,
@@ -33,4 +33,5 @@ export default combineReducers({
   updateFirmProfile: updateFirmProfileReducer,
   searchFirmProfile: searchFirmProfileReducer,
   selectedVersion: selectedVersionReducer,
+  updatedOwnership: updatedOwnershipReducer,
 });

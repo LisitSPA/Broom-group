@@ -6,12 +6,14 @@ import { updateSelectedVersion } from "@/redux/actions/versions";
 
 const VersionSelector = () => {
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedVersion, setSelectedVersion] = useState("Elegir versión");
-  const dropdownRef = useRef(null);
-  const buttonRef = useRef(null);
   const { matrix } = useSelector((state) => state);
   const { lastVersionId, versions } = matrix.response;
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState(
+    `Versión ${lastVersionId}`
+  );
+  const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
 
   useEffect(() => {
     dispatch(updateSelectedVersion(lastVersionId));
@@ -28,7 +30,6 @@ const VersionSelector = () => {
   };
 
   const handleVersionSelect = (versionId) => {
-    console.log("onclick", versionId);
     dispatch(updateSelectedVersion(versionId));
     setSelectedVersion(`Versión ${versionId}`);
     handleCloseDropdown();

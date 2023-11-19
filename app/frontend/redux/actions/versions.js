@@ -14,6 +14,7 @@ export const UPDATE_VERSION_SUCCESS = "@@versions/version/PUT_SUCCESS";
 export const UPDATE_VERSION_ERROR = "@@versions/version/PUT_ERROR";
 export const UPDATE_SELECTED_VERSION = "@@versions/version/selector";
 export const SET_SEARCH_TEXT = "@@versions/version/search";
+export const UPDATE_OWNERSHIP_PERCENTAGE = "UPDATE_OWNERSHIP_PERCENTAGE";
 
 export const callVersion = (version_id, onSuccess, onFailure) => {
   return apiAction({
@@ -74,4 +75,9 @@ export const updateSelectedVersion = (versionId) => ({
 export const setSearchText = (searchText) => ({
   type: SET_SEARCH_TEXT,
   payload: searchText,
+});
+
+export const updateOwnershipPercentage = (updatedOwnership) => ({
+  type: UPDATE_OWNERSHIP_PERCENTAGE,
+  payload: updatedOwnership,
 });

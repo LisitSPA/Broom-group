@@ -6,8 +6,9 @@ import { createVersion } from "@/redux/actions/versions";
 const Modal = () => {
   const dispatch = useDispatch();
 
-  const { modal } = useSelector((state) => state);
+  const { modal, matrix } = useSelector((state) => state);
   const { isOpen, modalType } = modal;
+  const { lastVersionId, matrixId } = matrix.response;
 
   const handleClose = () => {
     dispatch(closeModal());
@@ -17,17 +18,19 @@ const Modal = () => {
     dispatch(
       createVersion({
         versionData: {
-          matrixId: 2,
+          matrixId: matrixId,
           authorId: 2,
-          title: "prueba",
-          description: "test",
+          title: `Versión ${lastVersionId + 1}`,
+          description: `Versión ${lastVersionId + 1}`,
           isSimulated: false,
           sourceFile: null,
         },
-        firmProfilesIds: [],
+        firmProfilesIds: [
+
+        ],
         ownerships: [
           {
-            ownerProfileId: 1,
+            ownerProfileId: 1, //sacar de la celda
             subsidiaryProfileId: 1,
             percentage: 1,
           },
@@ -69,30 +72,15 @@ const Modal = () => {
             {/* body */}
             <div>
               <h2 className="text-lg font-medium mt-5">
-                Se guardarán los cambios cómo una versión 2 sobre la base de
-                datos.
+                {`Se guardarán los cambios cómo una versión ${
+                  lastVersionId + 1
+                } sobre la base de datos.`}
               </h2>
               <p className="text-lg font-medium mt-5">
                 ¿Crear una nueva versión o es una simulación?
               </p>
             </div>
 
-            {/* <div className='w-full mt-5'>
-              <div className="flex flex-col w-full text-sm rounded-md gap-1">
-                <input type="text" className='h-8 w-full border p-2 rounded-md text-center' placeholder='Nombre Sociedad' />
-                <div className='flex justify-between gap-2'>
-                  <input type="text" className='h-8 w-1/3 border p-2 rounded-md text-center' placeholder='11.111.111-1' />
-                  <input type="text" className='h-8 w-1/3 border p-2 rounded-md text-center' placeholder='Código SAP' />
-                  <input type="text" className='h-8 w-1/3 border p-2 rounded-md text-center' placeholder='País' />
-                </div>
-              </div>
-              <div className='flex justify-end items-center gap-2 mt-5'>
-                <button className='w-max px-3 py-1 bg-gray-300 hover:bg-DarkSlateGray text-white rounded-md'>descartar</button>
-                <button className='w-max px-3 py-1 bg-gray-400 hover:bg-LightBlueGray text-white rounded-md'>guardar sociedad</button>
-              </div>
-            </div> */}
-
-            {/* footer */}
             <div className="flex justify-center items-center mt-7 gap-2">
               <div className="flex">
                 <button className="flex justify-between items-center border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white">

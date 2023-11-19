@@ -5,6 +5,8 @@ const MatrixColTitles = () => {
   const { actualVersion } = useSelector((state) => state);
   const { firms, filteredData } = actualVersion.response;
   const listFirms = filteredData || firms;
+
+  console.log("MatrixColTitles", listFirms);
   return (
     <>
       {listFirms?.map((firm, index) => (
