@@ -30,7 +30,7 @@ const Modal = () => {
     };
 
     const uniqueIdsArray = extractUniqueIds(updatedOwnership);
-    
+
     dispatch(
       createVersion({
         versionData: {
@@ -80,9 +80,8 @@ const Modal = () => {
             {/* body */}
             <div>
               <h2 className="text-lg font-medium mt-5">
-                {`Se guardarán los cambios cómo una versión ${
-                  lastVersionId + 1
-                } sobre la base de datos.`}
+                Se guardarán los cambios cómo una nueva versión sobre la base de
+                datos.
               </h2>
               <p className="text-lg font-medium mt-5">
                 ¿Crear una nueva versión o es una simulación?
