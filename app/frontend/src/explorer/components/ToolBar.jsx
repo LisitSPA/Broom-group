@@ -5,7 +5,8 @@ import {
   TableCellsIcon,
 } from '../../shared/assets/Icons'
 import Firm from './Firm'
-
+//import { saveAs } from 'file-saver';
+import Papa from 'papaparse';
 const ToolBar = ({ onSearchTermChange }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectAllChecked, setSelectAllChecked] = useState(false); 
@@ -29,7 +30,47 @@ const ToolBar = ({ onSearchTermChange }) => {
       // Actualizar el estado
       setSelectAllChecked(!selectAllChecked);
   };
+  const handleExport = () => {
+    console.log('llego');
+    
+    const checkboxes = document.querySelectorAll('.checkbox');
+  
+    const selectedCheckboxes = Array.from(checkboxes).filter((checkbox) => checkbox.checked);
+    const selectedData = Array.from(selectedCheckboxes).map((checkbox) => {
+      const firmContainer = checkbox.closest('.flex.justify-between');
+  
+      if (firmContainer) {
+        const firmRutElement = firmContainer.querySelector('[data-rut]');
+        const firmDataCountryCodeElement = firmContainer.querySelector('[data-country]');
+  
+        if (firmRutElement) {
+          const rut = firmRutElement.textContent.trim();
+          const dataCountry = firmDataCountryCodeElement.textContent.trim();
+  
+          return { rut, dataCountry };
+        }
+      }
+  
+      return null;
+    }).filter(Boolean);
+  
+    const headers = ['Rut', 'Países'];
 
+    // Convertir datos a formato CSV usando papaparse
+    const csvData = Papa.unparse({
+      fields: headers,
+      data: selectedData,
+    });
+  
+    // Crear un objeto Blob con los datos CSV
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+  
+    // Crear un enlace de descarga y hacer clic en él
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'exportarseleccion.csv';
+    link.click();
+  };
   return (
     <div className='flex justify-between w-9/12 items-center mx-auto bg-LightGrayishBlue pt-7 pb-1 sticky top-0 z-30'>
       <div className='flex h-8 w-1/2 gap-3'>
@@ -55,9 +96,9 @@ const ToolBar = ({ onSearchTermChange }) => {
       </div>
 
       <div className='flex justify-between items-center gap-1 h-8'>
-        <button className='flex justify-between items-center h-full gap-2 border rounded-md text-sm text-Turquoise px-5 font-medium'>
+        <button className='flex justify-between items-center h-full gap-2 border rounded-md text-sm text-Turquoise px-5 font-medium' onClick={handleExport}>
           <TableCellsIcon className="h-4 w-4 stroke-2" />
-          exportar selección
+          Exportar selección
         </button>
       </div>
       <Firm searchTerm={searchTerm} selectAllChecked={selectAllChecked} />

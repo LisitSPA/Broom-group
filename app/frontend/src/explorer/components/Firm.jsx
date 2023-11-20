@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDownIcon, DotIcon } from '../../shared/assets/Icons'
 import { useSelector, useDispatch } from 'react-redux';
 import { callFirm } from '@/redux/actions/firms';
-
+import createCsvWriter from 'csv-writer';
 const translateLevels = (ownersMap, firms) => {
   console.log(ownersMap, firms)
   if (ownersMap) {
@@ -85,20 +85,20 @@ useEffect(() => {
               <input type="checkbox" checked={isChecked} onChange={handleCheckbox}  className="checkbox"/>
               <label className='select-none' >Incluir en la exportación</label>
             </div>
-            <h2 className='select-none text-lg'>{firm.name}</h2>
+            <h2 className='select-none text-lg' data-name={firm.name}>{firm.name}</h2>
           </div>
 
           <div className='flex justify-between gap-1 items-center w-8/12 px-2'>
             <div className='flex flex-col justify-center items-center'>
-              <div className='font-light text-lg'>{firm.rut}</div>
+              <div className='font-light text-lg' data-rut={firm.rut}>{firm.rut}</div>
               <div className='text-sm'>Rut</div>
             </div>
             <div className='flex flex-col justify-center items-center w-1/5'>
-              <div className='font-light text-lg text-center'>{firm.country}</div>
+              <div className='font-light text-lg text-center' data-country={firm.country}>{firm.country}</div>
               <div className='text-sm'>País</div>
             </div>
             <div className='flex flex-col justify-center items-center'>
-              <div className='font-light text-lg'>{firm.sapCode || '-'}</div>
+              <div className='font-light text-lg' data-sapcode={firm.sapCode || '-'}>{firm.sapCode || '-'}</div>
               <div className='text-sm'>SAP code</div>
             </div>
             <div className='flex flex-col justify-center items-center'>
