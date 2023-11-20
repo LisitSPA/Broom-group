@@ -16,8 +16,20 @@ const ToolBar = ({ onSearchTermChange }) => {
     setSearchTerm(searchTermValue);
   };
   const handleSelectAllCheckbox = () => {
-    setSelectAllChecked(!selectAllChecked);
+    //setSelectAllChecked(!selectAllChecked);
+    console.log('selectAllChecked actualizado:', !selectAllChecked);
+     // Obtener todos los checkboxes con la clase 'checkbox'
+      const checkboxes = document.querySelectorAll('.checkbox');
+
+      // Iterar sobre cada checkbox y activarlo
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = !selectAllChecked;
+      });
+
+      // Actualizar el estado
+      setSelectAllChecked(!selectAllChecked);
   };
+
   return (
     <div className='flex justify-between w-9/12 items-center mx-auto bg-LightGrayishBlue pt-7 pb-1 sticky top-0 z-30'>
       <div className='flex h-8 w-1/2 gap-3'>

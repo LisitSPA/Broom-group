@@ -31,18 +31,20 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const [firmId, setFirmId] = useState(firm?.firmId || '');
   const [isOpen, setIsOpen] = useState(false)
   const [isChecked, setIsChecked] = useState(false)
-  const [firmStructure, setFirmStructure] = useState(null)
-  useEffect(() => {
-    setIsChecked(selectAllChecked);
-  }, [selectAllChecked]);
+  const [firmStructure, setFirmStructure] = useState(false)
+ 
+useEffect(() => {
+  setIsChecked(selectAllChecked);
+  console.log('selectAllChecked en Firm:', selectAllChecked);
+}, [selectAllChecked]);
   if (!firm) {
     return null;
   }
-  console.log('aca',selectAllChecked)
+ 
  
   const handleCheckbox = () => {
     console.log('entro')
-    setIsChecked(!isChecked)
+    setIsChecked((prevChecked) => !prevChecked);
   }
 
   const toggleOpen = () => {
@@ -80,8 +82,8 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
         <div className={classes}>
           <div className='flex flex-col w-3/12 shrink-0'>
             <div className='flex justify-start items-center gap-1 text-xs'>
-              <input type="checkbox" checked={isChecked} onChange={handleCheckbox} />
-              <label className='select-none' onClick={handleCheckbox}>Incluir en la exportación</label>
+              <input type="checkbox" checked={isChecked} onChange={handleCheckbox}  className="checkbox"/>
+              <label className='select-none' >Incluir en la exportación</label>
             </div>
             <h2 className='select-none text-lg'>{firm.name}</h2>
           </div>
