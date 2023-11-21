@@ -18,6 +18,9 @@ import {
   updateFirmProfileReducer,
   searchFirmProfileReducer,
 } from "./firm_profiles";
+import {
+  countryReducer
+} from "./country";
 
 export default combineReducers({
   matrix: matrixReducer,
@@ -34,4 +37,5 @@ export default combineReducers({
   searchFirmProfile: searchFirmProfileReducer,
   selectedVersion: selectedVersionReducer,
   updatedOwnership: updatedOwnershipReducer,
+  country: countryReducer
 });
