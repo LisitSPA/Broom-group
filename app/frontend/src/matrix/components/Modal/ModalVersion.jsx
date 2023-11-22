@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeModal } from "@/redux/actions/modal";
-import { createVersion } from "@/redux/actions/versions";
+import { createVersion, addNewFirm } from "@/redux/actions/versions";
 
 const ModalVersion = () => {
   const dispatch = useDispatch();
 
   const { modal } = useSelector((state) => state);
-  const { isOpen, modalType } = modal;
+  const { isOpen } = modal;
   const [sociedad, setSociedad] = useState({
     title:'',
     description:'',
@@ -15,6 +15,19 @@ const ModalVersion = () => {
     sapCode:'',
     countryId:0
   });
+
+  const { actualVersion, country } = useSelector((state) => state);
+  const [responseVersion, setResponseVersion] = useState({});
+  const [countries, setCountries] = useState([]);
+
+  useEffect(() => {
+    setResponseVersion(actualVersion.response);
+  }, [actualVersion]);
+
+  useEffect(() => {
+    setCountries(country.response);
+    console.log(countries);
+  }, []);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -51,16 +64,12 @@ const ModalVersion = () => {
     );
   };
 
-  const country = useSelector(
-    (state) => state.country.response
-  );
-
   const grabar = async () => {
+    debugger
     try {
       //Obtenemos el arreglo actual del localStorage (si existe)
       let sociedades = JSON.parse(localStorage.getItem("sociedades")) || [];
   
-      console.log(sociedades);
       // Agregamos el nuevo objeto al arreglo
       let nuevaSociedad = {
         title: sociedad.title,
@@ -74,6 +83,28 @@ const ModalVersion = () => {
   
       // Almacenarmos el arreglo actualizado en el localStorage
       localStorage.setItem("sociedades", JSON.stringify(sociedades));
+
+      let paisNombre = countries.filter(x => x.id == sociedad.countryId);
+
+      const nuevoElemento = {        
+            firmId: null,
+            firmProfileId: null,
+            name: sociedad.title,
+            description: sociedad.description,
+            rut: sociedad.rut,
+            country: sociedad.countryId === 0 ? '' : paisNombre[0].name,
+            sapCode: sociedad.sapCode,
+            investors: [],
+      };
+
+      console.log(nuevoElemento);
+
+      const responseVersion2 = {
+        ...responseVersion,
+        firms: [...responseVersion.firms, nuevoElemento],
+      };
+
+      dispatch(addNewFirm(responseVersion2));
   
       console.log("Sociedad ingresada correctamente");
       handleClose();
@@ -193,7 +224,7 @@ const ModalVersion = () => {
               <select class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                 name="countryId" value={sociedad.countryId} onChange={handleChange} >
                 <option value="0">--Seleccione un País--</option>
-                      {country.map(i => (
+                      {countries?.map(i => (
                         <option key={i.id} label={i.name} id={i.name} value={i.id}>{i.name}</option>
                       ))}
                 </select>
