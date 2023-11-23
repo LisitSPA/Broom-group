@@ -32,7 +32,7 @@ const ToolBar = ({ onSearchTermChange }) => {
   };
   const handleExport = () => {
     console.log('llego');
-    
+    // Obtén todos los checkboxes
     const checkboxes = document.querySelectorAll('.checkbox');
   
     const selectedCheckboxes = Array.from(checkboxes).filter((checkbox) => checkbox.checked);
@@ -54,12 +54,9 @@ const ToolBar = ({ onSearchTermChange }) => {
       return null;
     }).filter(Boolean);
   
-    const headers = ['Rut', 'Países'];
-
     // Convertir datos a formato CSV usando papaparse
-    const csvData = Papa.unparse({
-      fields: headers,
-      data: selectedData,
+    const csvData = Papa.unparse(selectedData, {
+      header: true,
     });
   
     // Crear un objeto Blob con los datos CSV
@@ -68,7 +65,7 @@ const ToolBar = ({ onSearchTermChange }) => {
     // Crear un enlace de descarga y hacer clic en él
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'exportarseleccion.csv';
+    link.download = 'exported_data.csv';
     link.click();
   };
   return (
