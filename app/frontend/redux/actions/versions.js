@@ -15,6 +15,13 @@ export const UPDATE_VERSION_ERROR = "@@versions/version/PUT_ERROR";
 export const UPDATE_SELECTED_VERSION = "@@versions/version/selector";
 export const SET_SEARCH_TEXT = "@@versions/version/search";
 export const UPDATE_OWNERSHIP_PERCENTAGE = "UPDATE_OWNERSHIP_PERCENTAGE";
+export const ADD_NEW_FIRM = 'ADD_NEW_FIRM';
+
+export const addNewFirm = (nuevoFirm) => ({
+  type: ADD_NEW_FIRM,
+  payload: nuevoFirm,
+});
+
 
 export const callVersion = (version_id, onSuccess, onFailure) => {
   return apiAction({

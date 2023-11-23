@@ -2,6 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeModal } from "@/redux/actions/modal";
 import { createVersion } from "@/redux/actions/versions";
+import { SnackbarUtilities } from "@/src/helpers/snackbar-manager";
 
 const Modal = () => {
   const dispatch = useDispatch();
@@ -9,42 +10,44 @@ const Modal = () => {
     modal,
     matrix,
     updatedOwnership: { updatedOwnership },
+    actualVersion,
   } = useSelector((state) => state);
   const { isOpen, modalType } = modal;
   const { lastVersionId, matrixId } = matrix.response;
+  const { firms } = actualVersion.response;
 
-  const handleClose = () => {
-    dispatch(closeModal());
+  const handleClose = () => dispatch(closeModal());
+
+  const handleOnSuccess = () => {
+    SnackbarUtilities.success("Nueva versión creada con éxito");
   };
-
-  const handleSaveNewVersion = () => {
-    const extractUniqueIds = (data) => {
-      const uniqueIdsSet = new Set();
-      data.forEach((item) => {
-        uniqueIdsSet.add(item.ownerProfileId);
-        uniqueIdsSet.add(item.subsidiaryProfileId);
-      });
-
-      const uniqueIdsArray = Array.from(uniqueIdsSet);
-      return uniqueIdsArray;
-    };
-
-    const uniqueIdsArray = extractUniqueIds(updatedOwnership);
-    
-    dispatch(
-      createVersion({
-        versionData: {
-          matrixId: matrixId,
-          authorId: 1,
-          title: `Versión ${lastVersionId + 1}`,
-          description: `Versión ${lastVersionId + 1}`,
-          isSimulated: false,
-          sourceFile: null,
-        },
-        firmProfilesIds: uniqueIdsArray,
-        ownerships: updatedOwnership,
-      })
+  const handleOnFailure = () => {
+    SnackbarUtilities.error(
+      "No se pudo crear una nueva versión, intente de nuevo."
     );
+  };
+  const handleSaveNewVersion = () => {
+    const listFirmProfileId = firms?.map((item) => item.firmProfileId);
+
+    dispatch(
+      createVersion(
+        {
+          versionData: {
+            matrixId: matrixId,
+            authorId: 1,
+            title: `Versión ${lastVersionId + 1}`,
+            description: `Versión ${lastVersionId + 1}`,
+            isSimulated: false,
+            sourceFile: null,
+          },
+          firmProfilesIds: listFirmProfileId,
+          ownerships: updatedOwnership,
+        },
+        handleOnSuccess,
+        handleOnFailure
+      )
+    );
+    handleClose();
   };
 
   return (

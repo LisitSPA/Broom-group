@@ -4,9 +4,12 @@ import { useDispatch } from "react-redux";
 
 const SaveChangesButtons = () => {
   const dispatch = useDispatch();
+
   const handlerSaveChanges = () => {
     dispatch(openModal());
   };
+
+  const handlerDiscardChanges = () => {};
   return (
     <>
       <button
@@ -15,7 +18,10 @@ const SaveChangesButtons = () => {
       >
         Guardar cambios
       </button>
-      <button className="rounded-md px-5 py-2 bg-DarkSlateGray text-white text-xs">
+      <button
+        onClick={handlerDiscardChanges}
+        className="rounded-md px-5 py-2 bg-DarkSlateGray text-white text-xs"
+      >
         Descartar
       </button>
     </>

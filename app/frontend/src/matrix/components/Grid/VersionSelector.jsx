@@ -7,19 +7,16 @@ import { updateSelectedVersion } from "@/redux/actions/versions";
 const VersionSelector = () => {
   const dispatch = useDispatch();
   const { matrix } = useSelector((state) => state);
-  const { versions } = matrix.response;
-  const selectedVersion = useSelector(
-    (state) => state.selectedVersion.selectedVersion
-  );
+  const { versions, lastVersionId } = matrix.response;
 
   const [isOpen, setIsOpen] = useState(false);
-  const [version, setVersion] = useState(`Versión ${selectedVersion}`);
+  const [version, setVersion] = useState(`Última versión`);
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
 
   useEffect(() => {
-    dispatch(updateSelectedVersion(1));
-  }, []);
+    dispatch(updateSelectedVersion(lastVersionId));
+  }, [lastVersionId]);
 
   useOutsideClick(dropdownRef, buttonRef, () => handleCloseDropdown());
 
@@ -31,9 +28,9 @@ const VersionSelector = () => {
     if (isOpen) setIsOpen(false);
   };
 
-  const handleVersionSelect = (versionId) => {
+  const handleVersionSelect = (versionId, versionNumber) => {
     dispatch(updateSelectedVersion(versionId));
-    setVersion(`Versión ${versionId}`);
+    setVersion(`Versión ${versionNumber}`);
     handleCloseDropdown();
   };
 
@@ -84,9 +81,11 @@ const VersionSelector = () => {
                   <li
                     key={index}
                     className="py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleVersionSelect(index + 1)}
+                    onClick={() =>
+                      handleVersionSelect(item?.versionId, item?.versionNumber)
+                    }
                   >
-                    {`Versión ${index + 1}`}
+                    {`Versión ${item?.versionNumber}`}
                   </li>
                 ))}
               </ul>
