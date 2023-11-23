@@ -7,6 +7,7 @@ const Cell = ({
   ownerProfileId,
   investors,
   handlePercentageToSave,
+  error,
 }) => {
   const [percentage, setPercentage] = useState(null);
   const selectedVersion = useSelector(
@@ -47,6 +48,7 @@ const Cell = ({
     <div className="flex h-full w-28 p-2 text-center">
       <input
         className={cellClasses}
+        style={{ border: error && "2px solid #f07167" }}
         type="number"
         min="0"
         max="100"

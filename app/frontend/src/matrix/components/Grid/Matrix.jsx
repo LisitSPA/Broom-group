@@ -7,8 +7,8 @@ import { updateOwnershipPercentage } from "@/redux/actions/versions";
 const Matrix = () => {
   const dispatch = useDispatch();
   const { actualVersion } = useSelector((state) => state);
-  const { firms, filteredData, firmsSignature, investorsSignature } =
-    actualVersion.response;
+  const [errorState, setErrorState] = useState({});
+  const { firms, filteredData } = actualVersion.response;
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -17,6 +17,13 @@ const Matrix = () => {
 
     return () => setItems([]);
   }, [firms, filteredData]);
+
+  const calculateTotalPercentage = (investors) => {
+    return investors.reduce(
+      (sum, investor) => sum + parseFloat(investor?.percentage || 0),
+      0
+    );
+  };
 
   const getFormattedInvestors = () => {
     const formattedInvestors = updatedItems
@@ -72,6 +79,20 @@ const Matrix = () => {
 
       getFormattedInvestors(updatedItems);
     }
+
+    const totalPercentage = calculateTotalPercentage(
+      updatedItems[subsidiaryIndex].investors
+    );
+
+    const newErrorState = { ...errorState };
+
+    if (totalPercentage !== 100) {
+      newErrorState[subsidiaryProfileId] = "El porcentaje total no suma 100%";
+    } else {
+      newErrorState[subsidiaryProfileId] = "";
+    }
+    console.log(totalPercentage, newErrorState[subsidiaryProfileId]);
+    setErrorState(newErrorState);
   };
 
   if (!items?.length)
@@ -85,6 +106,7 @@ const Matrix = () => {
             key={`subsidiary_firm_${subsidiary_idx}`}
             firmName={subsidiary_firm.name}
             firmRut={subsidiary_firm.rut}
+            error={errorState[subsidiary_firm.firmProfileId]}
           />
 
           {items?.map((owner_firm, owner_idx) => (
@@ -94,6 +116,7 @@ const Matrix = () => {
               ownerProfileId={owner_firm.firmProfileId}
               investors={subsidiary_firm.investors}
               handlePercentageToSave={handlePercentageToSave}
+              error={errorState[subsidiary_firm.firmProfileId]}
             />
           ))}
         </div>

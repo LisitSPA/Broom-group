@@ -101,7 +101,15 @@
     transform: rotate(360deg);
   }
 }
-
+.error_percentage {
+  font-size: 12px;
+  background-color: #f07167;
+  text-align: end;
+  color: #fff;
+  margin-top: 4px;
+  border-radius: 5px;
+  padding: 2px 4px;
+}
 @media screen and (max-width: 900px) {
   .container_login_form {
     width: auto;
