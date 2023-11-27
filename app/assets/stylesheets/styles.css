@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap");
 * {
   margin: 0;
   padding: 0;
@@ -109,6 +110,55 @@
   margin-top: 4px;
   border-radius: 5px;
   padding: 2px 4px;
+}
+.tree_container {
+  width: 100%;
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+}
+.level_one,
+.level_two,
+.level_three,
+.last_level {
+  border-left: 2px solid #177e89;
+  margin-left: 10px;
+}
+.level_two {
+  border-left: 2px solid #db3a34;
+  margin-left: 28px;
+  margin-top: -3px;
+}
+.investor_level_one {
+  display: flex;
+  justify-content: flex-start;
+  gap: 5px;
+  align-items: center;
+  padding: 4px 0px;
+}
+.level_three {
+  border-left: 2px solid #ffc857;
+  margin-left: 28px;
+  margin-top: -3px;
+}
+
+.last_level {
+  border-left: 2px solid #f4a259;
+  margin-left: 28px;
+  margin-top: -3px;
+}
+.container_svg {
+  display: flex;
+  align-items: center;
+}
+
+.container_svg svg:nth-child(2) {
+  margin-left: -2px;
+  margin-bottom: -5px;
+}
+.percentage_level {
+  border: 1px solid #cccccc;
+  padding: 2px;
+  border-radius: 4px;
 }
 @media screen and (max-width: 900px) {
   .container_login_form {

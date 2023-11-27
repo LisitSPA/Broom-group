@@ -1,36 +1,81 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDownIcon, DotIcon } from "../../shared/assets/Icons";
 import { useSelector, useDispatch } from "react-redux";
 import { callFirm } from "@/redux/actions/firms";
 import createCsvWriter from "csv-writer";
+import CustomSVGContainer from "./CustomSVGContainer";
+
+// const translateLevels = (ownersMap, firms) => {
+//   if (ownersMap) {
+//     const { levels } = ownersMap;
+//     console.log("firms", firms);
+//     console.log("levels", levels);
+//   }
+// };
+
 const translateLevels = (ownersMap, firms) => {
-  console.log(ownersMap, firms);
   if (ownersMap) {
     const { levels } = ownersMap;
 
-    // levels.forEach(level => {
+    const translatedLevels = {};
 
-    // })
+    for (const levelKey in levels) {
+      if (Object.hasOwnProperty.call(levels, levelKey)) {
+        const firmsObj = levels[levelKey];
+        const translatedFirmsObj = {};
+
+        for (const firmId in firmsObj) {
+          if (Object.hasOwnProperty.call(firmsObj, firmId)) {
+            const investorIds = firmsObj[firmId];
+
+            const investorDetails = investorIds.map((id) => {
+              const firm = firms.find((firm) => firm.firmId === id);
+
+              if (firm) {
+                return {
+                  name: firm.name,
+                  percentage: firm.investors.find(
+                    (investor) =>
+                      investor.ownerFirmProfileId === parseInt(firmId)
+                  )?.percentage,
+                };
+              }
+              return null;
+            });
+
+            translatedFirmsObj[firmId] = investorDetails;
+          }
+        }
+
+        translatedLevels[levelKey] = translatedFirmsObj;
+      }
+    }
+    console.log("translatedLevels", translatedLevels);
+    return translatedLevels;
   }
 };
 
 const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
+  const reduxState = useSelector((state) => state);
+  const { firms } = reduxState.actualVersion.response;
+  console.log("firms", firms);
   const dispatch = useDispatch();
-  const { firmOwnersMap, actualVersion } = useSelector((state) => state);
-  const { response } = firmOwnersMap;
-  let firms = response ? response.firms : [];
-
-  const [firmId, setFirmId] = useState(firm?.firmId || "");
+  const { ownersMap, firmId } = useSelector(
+    (state) => state?.firmOwnersMap?.response
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [firmStructure, setFirmStructure] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  const firmIdState = firm?.firmId || "";
+
+  // let firms = [];
+  // console.log("firms", firms);
 
   useEffect(() => {
     setIsChecked(selectAllChecked);
-    console.log("selectAllChecked en Firm:", selectAllChecked);
   }, [selectAllChecked]);
   if (!firm) {
     return null;
@@ -49,15 +94,15 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   useEffect(() => {
     translateLevels(firmStructure, firms);
     if (!firmStructure) {
-      dispatch(callFirm(firmId));
+      dispatch(callFirm(firmIdState));
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (!firmStructure && response.firmId === firmId) {
-      setFirmStructure(response.ownersMap);
+    if (!firmStructure && firmId === firmIdState) {
+      setFirmStructure(ownersMap);
     }
-  }, [response]);
+  }, [ownersMap]);
 
   const classes = classNames(
     "flex justify-between items-center p-6 z-20 rounded-md",
@@ -141,139 +186,251 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
           {isOpen && (
             <motion.div
               className="flex flex-row p-6 bg-white z-10 rounded-b-md"
+              style={{ backgroundColor: "#F8F9FA" }}
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="w-full flex gap-5">
-                <div class="w-2/5">
-                  {!showDialog ? (
-                    <div className="flex justify-between">
-                      <div
-                        onClick={() => setShowDialog((prev) => !prev)}
-                        className="bg-gray-800 text-white"
-                        // style={{}}
+              <div className="w-full flex items-center gap-5 ">
+                <div className="flex flex-col" style={{ width: "40%" }}>
+                  <div
+                    className={`w-full ${
+                      showDialog
+                        ? "flex flex-col gap-5 "
+                        : "flex justify-between gap-5 "
+                    }`}
+                    style={{ marginBottom: "10px" }}
+                  >
+                    {!showDialog ? (
+                      <div className="flex items-center justify-between">
+                        <div
+                          onClick={() => setShowDialog((prev) => !prev)}
+                          className="bg-gray-800 text-white"
+                          style={{
+                            borderRadius: "5px",
+                            borderBottomLeftRadius: "0px",
+                            padding: "2px 5px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <svg
+                            width="12"
+                            height="14"
+                            viewBox="0 0 12 14"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M8.028 12.642L7.12267 9.68333M7.12267 9.68333L5.44933 10.9813L5.82867 5.45708L9.31333 10.0753L7.12267 9.68333ZM6 1.3125V2.625M9.88933 2.72183L8.82867 3.64992M11.5 6.125H10M3.17133 8.60008L2.11133 9.52758M2 6.125H0.5M3.17133 3.64992L2.11133 2.72242"
+                              stroke="#F8F9FA"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          <p style={{ fontSize: "11px", marginLeft: "1px" }}>
+                            ver participación en sociedades
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-teal-100 border-dashed border border-teal-400">
+                        <button
+                          onClick={toggleDialog}
+                          className="text-gray-500"
+                        >
+                          X
+                        </button>
+                        <div className="flex items-center gap-5 p-4">
+                          <div class="bg-white text-teal-900 p-2 rounded-md">
+                            10%
+                          </div>
+                          <p>Nombre de la Sociedad</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <select
+                      className={`border rounded-md ${
+                        showDialog ? "self-end" : ""
+                      }`}
+                      style={{ fontSize: "11px" }}
+                    >
+                      <option value="" disabled selected>
+                        filtrar por nivel
+                      </option>
+                      <option value="1">Nivel 1</option>
+                      <option value="2">Nivel 2</option>
+                      <option value="3">Nivel 3</option>
+                      <option value="4">Nivel 4</option>
+                    </select>
+                  </div>
+                  <div className="tree_container">
+                    <div className="flex items-center gap-1">
+                      <svg
+                        width="23"
+                        height="23"
+                        viewBox="0 0 23 23"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                        <p> ver participación en sociedades</p>
-                      </div>
-                      <div className="mt-4">
-                        <select className="border rounded-md">
-                          <option value="" disabled selected>
-                            filtrar por nivel
-                          </option>
-                          <option value="1">Nivel 1</option>
-                          <option value="2">Nivel 2</option>
-                          <option value="3">Nivel 3</option>
-                          <option value="4">Nivel 4</option>
-                        </select>
-                      </div>
+                        <circle
+                          cx="11.5"
+                          cy="11.5"
+                          r="9.5"
+                          fill="#00A896"
+                          stroke="#02C39A"
+                          stroke-width="4"
+                        />
+                      </svg>
+                      <p>{firm.name}</p>
+                      <svg
+                        width="10"
+                        height="6"
+                        viewBox="0 0 10 6"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8.75 1.125L5 4.875L1.25 1.125"
+                          stroke="#787878"
+                          stroke-width="1.2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
                     </div>
-                  ) : (
-                    <div className="bg-teal-100 border-dashed border border-teal-400">
-                      <button onClick={toggleDialog} className="text-gray-500">
-                        X
-                      </button>
-                      <div className="flex items-center gap-5 p-4">
-                        <div class="bg-white text-teal-900 p-4 rounded-md">
-                          10%
+                    <div className="level_one">
+                      <div className="investor_level_one">
+                        <CustomSVGContainer fill="#177E89" />
+                        <p className="percentage_level">45</p>
+                        <p>{"investor_name"}</p>
+                      </div>
+                      <div className="level_two">
+                        <div className="investor_level_one">
+                          <CustomSVGContainer fill="#db3a34" />
+                          <p className="percentage_level">36</p>
+                          <p>{"investor_name"}</p>
                         </div>
-                        <p>Nombre de la Sociedad</p>
+                      </div>
+                      <div className="level_two">
+                        <div className="investor_level_one">
+                          <CustomSVGContainer fill="#db3a34" />
+                          <p className="percentage_level">15</p>
+                          <p>{"investor_name"}</p>
+                        </div>
+                        <div className="level_three">
+                          <div className="investor_level_one">
+                            <CustomSVGContainer fill="#FFC857" />
+                            <p className="percentage_level">25</p>
+                            <p>{"investor_name"}</p>
+                          </div>
+                          <div className="last_level">
+                            <div className="investor_level_one">
+                              <CustomSVGContainer fill="#FFC857" />
+                              <p className="percentage_level">10</p>
+                              <p>{"investor_name"}</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  )}
+                    <div className="level_one">
+                      <div className="investor_level_one">
+                        <CustomSVGContainer fill="#177E89" />
+                        <p className="percentage_level">{5}</p>
+                        <p>{"investor_name"}</p>
+                      </div>
+                    </div>
+                    <div className="level_one">
+                      <div className="investor_level_one">
+                        <CustomSVGContainer fill="#177E89" />
+                        <p className="percentage_level">{2}</p>
+                        <p>{"investor_name"}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <table class="text-sm">
-                  <thead>
-                    <tr className="border-b text-left">
-                      <th className="w-16 text-center">Nivel</th>
-                      <th className="w-20 text-center">%</th>
-                      <th>Propietaria</th>
-                      <th>Rut propietaria</th>
-                      <th className="w-2/5">Subsidiaria/s</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="hover:bg-slate-100">
-                      <td className="text-center">1</td>
-                      <td className="text-center">10%</td>
-                      <td>Lorem Ipsum</td>
-                      <td>11.111.111-1</td>
-                      <td className="flex items-center gap-2">
-                        <div className="flex flex-wrap items-center gap-1 my-2">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="w-5 h-5 shrink-0"
-                          >
-                            <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
-                            <path
-                              fillRule="evenodd"
-                              d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <span className="border p-1 bg-slate-100 rounded-md">
-                            Nombre de la sociedad
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-slate-100">
-                      <td className="text-center">1</td>
-                      <td className="text-center">10%</td>
-                      <td>Lorem Ipsum</td>
-                      <td>11.111.111-1</td>
-                      <td className="flex items-center gap-2">
-                        <div className="flex flex-wrap items-center gap-1 my-2">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="w-5 h-5 shrink-0"
-                          >
-                            <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
-                            <path
-                              fillRule="evenodd"
-                              d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <span className="border p-1 bg-slate-100 rounded-md">
-                            Nombre de la sociedad
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-slate-100 border-t">
-                      <td className="text-center">2</td>
-                      <td className="text-center">10%</td>
-                      <td>Lorem Ipsum</td>
-                      <td>11.111.111-1</td>
-                      <td className="flex items-center gap-2">
-                        <div className="flex flex-wrap items-center gap-1 my-2">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="w-5 h-5 shrink-0"
-                          >
-                            <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
-                            <path
-                              fillRule="evenodd"
-                              d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <span className="border p-1 bg-slate-100 rounded-md">
-                            Nombre de la sociedad
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div
+                  className="flex flex-col gap-10"
+                  style={{
+                    width: "50%",
+                    minHeight: "300px",
+                  }}
+                >
+                  <h3 style={{ textAlign: "center" }}>{firm.name}</h3>
+                  <div className="flex flex-col">
+                    <div className="flex justify-start items-center gap-1">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={handleCheckbox}
+                        className="checkbox"
+                      />
+                      <p>Sociedades Finales</p>
+                      <svg
+                        width="10"
+                        height="6"
+                        viewBox="0 0 10 6"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8.75 1.125L5 4.875L1.25 1.125"
+                          stroke="#787878"
+                          stroke-width="1.2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      style={{ borderBottom: "3px solid #fff" }}
+                      className="flex items-center gap-5 justify-between px-5 text-xs"
+                    >
+                      <p>Nombre de la sociedad</p>
+                      <p>25%</p>
+                      <p>11.111.111-2</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="flex justify-start items-center gap-1 ">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={handleCheckbox}
+                        className="checkbox"
+                      />
+                      <p>Shareholders</p>
+                      <svg
+                        width="10"
+                        height="6"
+                        viewBox="0 0 10 6"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8.75 1.125L5 4.875L1.25 1.125"
+                          stroke="#787878"
+                          stroke-width="1.2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <div
+                      style={{ borderBottom: "3px solid #fff" }}
+                      className="flex items-center gap-5 justify-between border-b-3 border-white px-5 text-xs"
+                    >
+                      <p>Nombre de la sociedad</p>
+                      <p>25%</p>
+                      <p>11.111.111-2</p>
+                      <p>email@email.com</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
