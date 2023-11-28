@@ -7,60 +7,15 @@ import { callFirm } from "@/redux/actions/firms";
 import createCsvWriter from "csv-writer";
 import CustomSVGContainer from "./CustomSVGContainer";
 
-// const translateLevels = (ownersMap, firms) => {
-//   if (ownersMap) {
-//     const { levels } = ownersMap;
-//     console.log("firms", firms);
-//     console.log("levels", levels);
-//   }
-// };
-
 const translateLevels = (ownersMap, firms) => {
   if (ownersMap) {
     const { levels } = ownersMap;
-
-    const translatedLevels = {};
-
-    for (const levelKey in levels) {
-      if (Object.hasOwnProperty.call(levels, levelKey)) {
-        const firmsObj = levels[levelKey];
-        const translatedFirmsObj = {};
-
-        for (const firmId in firmsObj) {
-          if (Object.hasOwnProperty.call(firmsObj, firmId)) {
-            const investorIds = firmsObj[firmId];
-
-            const investorDetails = investorIds.map((id) => {
-              const firm = firms.find((firm) => firm.firmId === id);
-
-              if (firm) {
-                return {
-                  name: firm.name,
-                  percentage: firm.investors.find(
-                    (investor) =>
-                      investor.ownerFirmProfileId === parseInt(firmId)
-                  )?.percentage,
-                };
-              }
-              return null;
-            });
-
-            translatedFirmsObj[firmId] = investorDetails;
-          }
-        }
-
-        translatedLevels[levelKey] = translatedFirmsObj;
-      }
-    }
-    console.log("translatedLevels", translatedLevels);
-    return translatedLevels;
   }
 };
 
 const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const reduxState = useSelector((state) => state);
   const { firms } = reduxState.actualVersion.response;
-  console.log("firms", firms);
   const dispatch = useDispatch();
   const { ownersMap, firmId } = useSelector(
     (state) => state?.firmOwnersMap?.response
@@ -70,9 +25,6 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const [firmStructure, setFirmStructure] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const firmIdState = firm?.firmId || "";
-
-  // let firms = [];
-  // console.log("firms", firms);
 
   useEffect(() => {
     setIsChecked(selectAllChecked);
@@ -185,14 +137,14 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              className="flex flex-row p-6 bg-white z-10 rounded-b-md"
+              className="flex flex-row py-1 px-4 bg-white z-10 rounded-b-md"
               style={{ backgroundColor: "#F8F9FA" }}
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="w-full flex items-center gap-5 ">
+              <div className="w-full flex gap-5">
                 <div className="flex flex-col" style={{ width: "40%" }}>
                   <div
                     className={`w-full ${
@@ -236,18 +188,49 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-teal-100 border-dashed border border-teal-400">
+                      <div className="border-dashed border-2 border-blue-400 bg-blue-100 p-2 flex flex-col">
                         <button
                           onClick={toggleDialog}
-                          className="text-gray-500"
+                          className="text-gray-500 self-end"
                         >
-                          X
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 14 14"
+                            fill="none"
+                          >
+                            <path
+                              d="M3.5 10.5L10.5 3.5M3.5 3.5L10.5 10.5"
+                              stroke="#03045E"
+                              stroke-opacity="0.270588"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
                         </button>
+                        <p className="text-black font-manrope text-base font-light">
+                          Participación en estas sociedades:
+                        </p>
                         <div className="flex items-center gap-5 p-4">
-                          <div class="bg-white text-teal-900 p-2 rounded-md">
-                            10%
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="9"
+                            height="9"
+                            viewBox="0 0 9 9"
+                            fill="none"
+                          >
+                            <circle cx="4.5" cy="4.5" r="4.5" fill="#00B4D8" />
+                          </svg>
+                          <div class="rounded-md bg-white p-1">
+                            <p className="text-blue-800 text-center text-xs font-medium">
+                              10%
+                            </p>
                           </div>
-                          <p>Nombre de la Sociedad</p>
+                          <p className="text-black text-sm">
+                            Nombre de la Sociedad
+                          </p>
                         </div>
                       </div>
                     )}
