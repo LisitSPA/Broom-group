@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import classNames from "classnames";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDownIcon, DotIcon } from "../../shared/assets/Icons";
 import { useSelector, useDispatch } from "react-redux";
 import { callFirm } from "@/redux/actions/firms";
-import createCsvWriter from "csv-writer";
 import CustomSVGContainer from "./CustomSVGContainer";
-
+import createCsvWriter from "csv-writer";
 const translateLevels = (ownersMap, firms) => {
   console.log("aqui",ownersMap);
   if (ownersMap) {
@@ -42,17 +41,16 @@ const translateLevels = (ownersMap, firms) => {
 
 
 const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
-  const reduxState = useSelector((state) => state);
-  const { firms } = reduxState.actualVersion.response;
   const dispatch = useDispatch();
-  const { ownersMap, firmId } = useSelector(
-    (state) => state?.firmOwnersMap?.response
-  );
+  const { firmOwnersMap, actualVersion } = useSelector((state) => state);
+  const { response } = firmOwnersMap;
+  let firms = response ? response.firms : [];
+
+  const [firmId, setFirmId] = useState(firm?.firmId || "");
   const [isOpen, setIsOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [firmStructure, setFirmStructure] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
-  const firmIdState = firm?.firmId || "";
 
   useEffect(() => {
     setIsChecked(selectAllChecked);
@@ -76,16 +74,16 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   useEffect(() => {
     translateLevels(firmStructure, firms);
     if (!firmStructure) {
-      dispatch(callFirm(firmIdState));
+      dispatch(callFirm(firmId));
     }
   }, [isOpen, firmStructure, firmId, dispatch]);
 
   useEffect(() => {
-    if (response && firmId === firmIdState) {
-      setFirmStructure(ownersMap);
-      console.log('callFirm values:', response); 
+    if (response && response.firmId === firmId) {
+      setFirmStructure(response.ownersMap);
+      console.log('callFirm values:',firmId, response); 
     }
-  }, [ownersMap, firmId]);
+  }, [response, firmId]);
 
 
   const classes = classNames(
@@ -121,7 +119,31 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   return "Final";
 };
 
-  
+
+const getNumberOfPart = (firmStructure, firmId) => {
+  // Verificar si firmStructure existe y tiene la propiedad levels
+  if (firmStructure?.levels) {
+    const { levels } = firmStructure;
+
+    // Iterar sobre las claves (niveles) de levels
+    for (const levelKey in levels) {
+      if (Object.hasOwnProperty.call(levels, levelKey)) {
+        // Obtener el objeto correspondiente al nivel actual
+        const levelObject = levels[levelKey];
+
+        // Verificar si firmId existe en el nivel actual
+        if (levelObject[firmId] && levelObject[firmId].length > 0) {
+          // Retornar la cantidad de niveles para el firmId
+          return (levelObject[firmId].length);
+        }
+      }
+    }
+  }
+
+  // Retornar 0 si no se encuentra el firmId en ningún nivel
+  return 0;
+};
+
 
   return (
     <AnimatePresence>
@@ -174,8 +196,8 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               <div className="text-sm">SAP code</div>
             </div>
             <div className="flex flex-col justify-center items-center">
-              <div className="font-light text-lg">-</div>
-              <div className="text-sm">Soc.Finales</div>
+              <div className="font-light text-lg">{getNumberOfPart(firmStructure, firm.firmId)}</div>
+              <div className="text-sm">Participiación</div>
             </div>
             <div className="flex flex-col justify-center items-center">
               <div className="font-light text-lg">{getNumberOfLevels(firmStructure, firm.firmId)}</div>
