@@ -10,7 +10,7 @@ const MatrixColTitles = () => {
     const listFirms = filteredData || firms;
     setItems(listFirms);
   }, [firms, filteredData]);
-
+console.log(items)
   return (
     <>
       {items?.map((firm, index) => (

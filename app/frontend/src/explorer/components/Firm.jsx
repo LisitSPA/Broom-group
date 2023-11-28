@@ -6,15 +6,38 @@ import { useSelector, useDispatch } from "react-redux";
 import { callFirm } from "@/redux/actions/firms";
 import createCsvWriter from "csv-writer";
 const translateLevels = (ownersMap, firms) => {
-  console.log(ownersMap, firms);
+  console.log("aqui",ownersMap);
   if (ownersMap) {
     const { levels } = ownersMap;
+     // Obtener un arreglo de las claves (propiedades) del objeto levels
+     const keysArray = Object.keys(levels);
 
-    // levels.forEach(level => {
+     
+     console.log(keysArray.length);
+    
 
-    // })
+    // Iterar sobre las propiedades del objeto levels
+    for (const key in levels) {
+      if (Object.hasOwnProperty.call(levels, key)) {
+        const innerObject = levels[key];
+        
+        // Iterar sobre las propiedades del objeto interno
+        for (const innerKey in innerObject) {
+          if (Object.hasOwnProperty.call(innerObject, innerKey)) {
+            const innerArray = innerObject[innerKey];
+
+            // Ahora puedes trabajar con innerArray
+            console.log(`nivel: ${key}, idsociedad: ${innerKey}, idinversionistas: ${innerArray}`);
+            
+          }
+        }
+      }
+    }
   }
 };
+
+
+
 
 const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const dispatch = useDispatch();
@@ -25,12 +48,13 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const [firmId, setFirmId] = useState(firm?.firmId || "");
   const [isOpen, setIsOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [firmStructure, setFirmStructure] = useState(false);
+  const [firmStructure, setFirmStructure] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     setIsChecked(selectAllChecked);
     console.log("selectAllChecked en Firm:", selectAllChecked);
+    //toggleOpen();
   }, [selectAllChecked]);
   if (!firm) {
     return null;
@@ -51,13 +75,15 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
     if (!firmStructure) {
       dispatch(callFirm(firmId));
     }
-  }, [isOpen]);
+  }, [isOpen, firmStructure, firmId, dispatch]);
 
   useEffect(() => {
-    if (!firmStructure && response.firmId === firmId) {
+    if (response && response.firmId === firmId) {
       setFirmStructure(response.ownersMap);
+      console.log('callFirm values:', response); 
     }
-  }, [response]);
+  }, [response, firmId]);
+
 
   const classes = classNames(
     "flex justify-between items-center p-6 z-20 rounded-md",
@@ -67,6 +93,32 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
       "outline outline-1 outline-sky-400": isChecked,
     }
   );
+
+ const getNumberOfLevels = (firmStructure, firmId) => {
+  // Verificar si firmStructure existe y tiene la propiedad levels
+  if (firmStructure?.levels) {
+    const { levels } = firmStructure;
+
+    // Iterar sobre las claves (niveles) de levels
+    for (const levelKey in levels) {
+      if (Object.hasOwnProperty.call(levels, levelKey)) {
+        // Obtener el objeto correspondiente al nivel actual
+        const levelObject = levels[levelKey];
+
+        // Verificar si firmId existe en el nivel actual
+        if (levelObject[firmId] && levelObject[firmId].length > 0) {
+          // Retornar la cantidad de niveles para el firmId
+          return (levelObject[firmId].length)-1;
+        }
+      }
+    }
+  }
+
+  // Retornar 0 si no se encuentra el firmId en ningún nivel
+  return "Final";
+};
+
+  
 
   return (
     <AnimatePresence>
@@ -89,7 +141,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               <label className="select-none">Incluir en la exportación</label>
             </div>
             <h2 className="select-none text-lg" data-name={firm.name}>
-              {firm.name}
+              {firm.name} -  {firm.firmId}
             </h2>
           </div>
 
@@ -123,7 +175,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               <div className="text-sm">Soc.Finales</div>
             </div>
             <div className="flex flex-col justify-center items-center">
-              <div className="font-light text-lg">-</div>
+              <div className="font-light text-lg">{getNumberOfLevels(firmStructure, firm.firmId)}</div>
               <div className="text-sm">Niveles</div>
             </div>
           </div>
