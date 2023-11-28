@@ -31,7 +31,12 @@ const FirmContainer = React.memo(({ searchTerm }) => {
   return (
     <div className="flex flex-col gap-6 justify-between w-10/12 items-center mx-auto my-12">
       {filteredFirms?.map((firm, index) => (
-        <Firm key={index} firm={firm} searchTerm={searchTerm} />
+        <Firm
+          key={index}
+          firm={firm}
+          searchTerm={searchTerm}
+          
+        />
       ))}
     </div>
   );
