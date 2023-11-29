@@ -4,13 +4,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import Firm from "./Firm";
 import { openModal } from "@/redux/actions/modal";
 import { useDispatch } from "react-redux";
-import Papa from "papaparse";
 
-const ToolBar = ({ onSearchTermChange, setFilteredData }) => {
+const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const numberOfCompanies =
+    filteredData && filteredData.length > 0
+      ? `(${filteredData.length} sociedades)`
+      : "";
+  const buttonText = `Exportar Selección ${numberOfCompanies}`;
 
   const toggleSelect = () => {
     setIsOpen(!isOpen);
@@ -63,17 +67,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData }) => {
       .filter(Boolean);
 
     setFilteredData(selectedData);
-    // // Convertir datos a formato CSV usando papaparse
-    // const csvData = Papa.unparse(selectedData, {
-    //   header: true,
-    // });
-    // // Crear un objeto Blob con los datos CSV
-    // const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
-    // // Crear un enlace de descarga y hacer clic en él
-    // const link = document.createElement("a");
-    // link.href = URL.createObjectURL(blob);
-    // link.download = "exported_data.csv";
-    // link.click();
   };
 
   const handlerBulkImportCompanies = () => {
@@ -116,7 +109,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData }) => {
           className="flex justify-between bg-white items-center h-full gap-2 border rounded-md text-sm text-Turquoise px-5 font-medium"
           onClick={handleOpenModal}
         >
-          {"Exportar selección (3 sociedades)"}
+          {buttonText}
         </button>
         <button
           onClick={toggleSelect}
