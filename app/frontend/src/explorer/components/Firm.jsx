@@ -6,37 +6,41 @@ import { useSelector, useDispatch } from "react-redux";
 import { callFirm } from "@/redux/actions/firms";
 import CustomSVGContainer from "./CustomSVGContainer";
 import createCsvWriter from "csv-writer";
-const translateLevels = (ownersMap, firms) => {
-  console.log("aqui",ownersMap);
+const translateLevels = (ownersMap, firms, response) => {
+  const levelSocietiesInfo = [];
+
   if (ownersMap) {
     const { levels } = ownersMap;
-     // Obtener un arreglo de las claves (propiedades) del objeto levels
-     const keysArray = Object.keys(levels);
 
-     
-     console.log(keysArray.length);
-    
+    for (const levelKey in levels) {
+      if (Object.hasOwnProperty.call(levels, levelKey)) {
+        const innerObject = levels[levelKey];
+        const societiesInfo = [];
 
-    // Iterar sobre las propiedades del objeto levels
-    for (const key in levels) {
-      if (Object.hasOwnProperty.call(levels, key)) {
-        const innerObject = levels[key];
-        
-        // Iterar sobre las propiedades del objeto interno
         for (const innerKey in innerObject) {
           if (Object.hasOwnProperty.call(innerObject, innerKey)) {
-            const innerArray = innerObject[innerKey];
-
-            // Ahora puedes trabajar con innerArray
-            console.log(`nivel: ${key}, idsociedad: ${innerKey}, idinversionistas: ${innerArray}`);
-            
+            const societyInfo = {
+              societyId: innerKey,
+              investorIds: innerObject[innerKey],
+            };
+            societiesInfo.push(societyInfo);
           }
         }
+
+        const levelInfo = {
+          level: levelKey,
+          societies: societiesInfo,
+        };
+
+       
+
+        levelSocietiesInfo.push(levelInfo);
       }
     }
   }
-};
 
+  return levelSocietiesInfo;
+};
 
 
 
@@ -51,6 +55,8 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const [isChecked, setIsChecked] = useState(false);
   const [firmStructure, setFirmStructure] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [levelSocietiesInfo, setLevelSocietiesInfo] = useState([]);
+
 
   useEffect(() => {
     setIsChecked(selectAllChecked);
@@ -72,19 +78,31 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   };
 
   useEffect(() => {
-    translateLevels(firmStructure, firms);
+    const info = translateLevels(firmStructure, firms, response);
+    setLevelSocietiesInfo(info);
     if (!firmStructure) {
       dispatch(callFirm(firmId));
     }
-  }, [isOpen, firmStructure, firmId, dispatch]);
+  }, [isOpen, firmStructure, firmId, response, dispatch]);
+  
 
   useEffect(() => {
     if (response && response.firmId === firmId) {
       setFirmStructure(response.ownersMap);
-      console.log('callFirm values:',firmId, response); 
+      console.log('callFirm values:', firmId, response);
+      // También actualiza el título aquí
+      const title = response.title; // Reemplaza con la propiedad correcta de response
+      setLevelSocietiesInfo((prevInfo) =>
+        prevInfo.map((levelInfo) => ({
+          ...levelInfo,
+          societies: levelInfo.societies.map((societyInfo) => ({
+            ...societyInfo,
+            title: title,
+          })),
+        }))
+      );
     }
   }, [response, firmId]);
-
 
   const classes = classNames(
     "flex justify-between items-center p-6 z-20 rounded-md",
@@ -96,7 +114,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   );
 
  const getNumberOfLevels = (firmStructure, firmId) => {
-  // Verificar si firmStructure existe y tiene la propiedad levels
+  console.log("firmStructure",firmId,firmStructure)
   if (firmStructure?.levels) {
     const { levels } = firmStructure;
 
@@ -145,6 +163,39 @@ const getNumberOfPart = (firmStructure, firmId) => {
 };
 
 
+
+/*const getFinalFirmsInfo = (firmStructure, firmId) => {
+  //console.log('para la firm:',firmId )
+  if (firmStructure?.levels) {
+    const { levels, finalFirms } = firmStructure;
+
+    // Iterar sobre las claves (niveles) de levels
+    for (const levelKey in levels) {
+      if (Object.hasOwnProperty.call(levels, levelKey)) {
+        // Obtener el objeto correspondiente al nivel actual
+        const levelObject = levels[levelKey];
+
+        // Verificar si firmId existe en el nivel actual
+        if (levelObject[firmId] && levelObject[firmId].length > 0) {
+          const firmInfoArray = levelObject[firmId].map((finalFirmId) => {
+          // console.log('dhbjdjdasb',finalFirmId)
+          if(response.firmId==finalFirmId ){
+           // console.log('encontrooo',response.title )
+          }
+          
+           
+          });
+
+          return firmInfoArray;
+        }
+      }
+    }
+  }*
+
+  // Retornar un array vacío si no se encuentra el firmId en ningún nivel
+  return [];
+};*/
+//getFinalFirmsInfo (firmStructure, 48)
   return (
     <AnimatePresence>
       <motion.div
@@ -449,6 +500,20 @@ const getNumberOfPart = (firmStructure, firmId) => {
                         />
                       </svg>
                     </div>
+                   {/* Renderizar la información de niveles y sociedades */}
+{levelSocietiesInfo.map((levelInfo, index) => (
+  <div key={index}>
+    <p>Nivel: {levelInfo.level}</p>
+    <ul>
+      {levelInfo.societies.map((societyInfo, innerIndex) => (
+        <li key={innerIndex}>
+          ID Sociedad: {societyInfo.societyId}, ID Inversionistas: {societyInfo.investorIds.join(", ")}
+        </li>
+      ))}
+    </ul>
+  </div>
+))}
+
                     <div
                       style={{ borderBottom: "3px solid #fff" }}
                       className="flex items-center gap-5 justify-between px-5 text-xs"
