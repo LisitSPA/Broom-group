@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import useOutsideClick from "../../hooks/useOutsideClick";
-import { openModal } from '@/redux/actions/modal';
+import { openModal } from "@/redux/actions/modal";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  useSelector,
-  useDispatch
-} from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 
 const FirmsActionSelector = () => {
   const dispatch = useDispatch();
@@ -26,10 +23,14 @@ const FirmsActionSelector = () => {
 
   const handleOpenModal = () => {
     dispatch(openModal("modalVersion"));
-  }
+  };
+
   return (
     <div className="flex justify-between items-center gap-1 relative">
-      <button className="text-sm bg-white p-3 h-7 rounded-md flex items-center gap-3" onClick={handleOpenModal}>
+      <button
+        className="text-sm bg-white p-3 h-7 rounded-md flex items-center gap-3"
+        onClick={handleOpenModal}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

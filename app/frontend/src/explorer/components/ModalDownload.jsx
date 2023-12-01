@@ -2,6 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeModal } from "@/redux/actions/modal";
 import Papa from "papaparse";
+import html2canvas from "html2canvas";
 
 export const ModalDownload = ({ data }) => {
   const dispatch = useDispatch();
@@ -24,6 +25,19 @@ export const ModalDownload = ({ data }) => {
     link.click();
     handleClose();
   };
+
+  function handlerDownloadTree() {
+    // const divToCapture = document.getElementById("organigrama");
+    // html2canvas(divToCapture).then((canvas) => {
+    //   const imgData = canvas.toDataURL("image/png");
+    //   const downloadLink = document.createElement("a");
+    //   downloadLink.href = imgData;
+    //   downloadLink.download = "captured_div.png";
+    //   downloadLink.click();
+    //   handleClose();
+    // });
+  }
+
   return (
     <>
       {isOpen && (
@@ -147,7 +161,7 @@ export const ModalDownload = ({ data }) => {
                 </div>
 
                 <button
-                  onClick={() => handleClose()}
+                  onClick={() => handlerDownloadTree()}
                   className="border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white flex justify-between items-center gap-5"
                 >
                   <svg

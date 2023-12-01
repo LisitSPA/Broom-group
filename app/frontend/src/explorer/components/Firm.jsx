@@ -10,6 +10,7 @@ const translateLevels = (ownersMap, firms, response) => {
   const levelSocietiesInfo = [];
 
   if (ownersMap) {
+    console.log("ownersMap", ownersMap);
     const { levels } = ownersMap;
 
     for (const levelKey in levels) {
@@ -32,8 +33,6 @@ const translateLevels = (ownersMap, firms, response) => {
           societies: societiesInfo,
         };
 
-       
-
         levelSocietiesInfo.push(levelInfo);
       }
     }
@@ -42,12 +41,11 @@ const translateLevels = (ownersMap, firms, response) => {
   return levelSocietiesInfo;
 };
 
-
-
 const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const dispatch = useDispatch();
   const { firmOwnersMap, actualVersion } = useSelector((state) => state);
   const { response } = firmOwnersMap;
+  console.log("response", response);
   let firms = response ? response.firms : [];
 
   const [firmId, setFirmId] = useState(firm?.firmId || "");
@@ -57,15 +55,25 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const [showDialog, setShowDialog] = useState(false);
   const [levelSocietiesInfo, setLevelSocietiesInfo] = useState([]);
 
-
   useEffect(() => {
     setIsChecked(selectAllChecked);
-    console.log("selectAllChecked en Firm:", selectAllChecked);
+    // console.log("selectAllChecked en Firm:", selectAllChecked);
     //toggleOpen();
   }, [selectAllChecked]);
   if (!firm) {
     return null;
   }
+
+  const dataFromEndpoint = [];
+
+  const FIRM_DATA = {};
+
+  dataFromEndpoint.forEach((item) => {
+    FIRM_DATA[item.firmProfileId] = {
+      title: item.title,
+      rut: item.rut,
+    };
+  });
 
   const handleCheckbox = () => {
     setIsChecked((prevChecked) => !prevChecked);
@@ -84,12 +92,11 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
       dispatch(callFirm(firmId));
     }
   }, [isOpen, firmStructure, firmId, response, dispatch]);
-  
 
   useEffect(() => {
     if (response && response.firmId === firmId) {
       setFirmStructure(response.ownersMap);
-      console.log('callFirm values:', firmId, response);
+      // console.log("callFirm values:", firmId, response);
       // También actualiza el título aquí
       const title = response.title; // Reemplaza con la propiedad correcta de response
       setLevelSocietiesInfo((prevInfo) =>
@@ -113,58 +120,63 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
     }
   );
 
- const getNumberOfLevels = (firmStructure, firmId) => {
-  console.log("firmStructure",firmId,firmStructure)
-  if (firmStructure?.levels) {
-    const { levels } = firmStructure;
+  const LEVELS_KEYS = {
+    1: "one",
+    2: "two",
+    3: "three",
+    4: "lastLevel",
+  };
+  // Función para mostrar niveles y porcentajes de inversión
 
-    // Iterar sobre las claves (niveles) de levels
-    for (const levelKey in levels) {
-      if (Object.hasOwnProperty.call(levels, levelKey)) {
-        // Obtener el objeto correspondiente al nivel actual
-        const levelObject = levels[levelKey];
+  const getNumberOfLevels = (firmStructure, firmId) => {
+    // console.log("firmStructure", firmId, firmStructure);
+    if (firmStructure?.levels) {
+      const { levels } = firmStructure;
 
-        // Verificar si firmId existe en el nivel actual
-        if (levelObject[firmId] && levelObject[firmId].length > 0) {
-          // Retornar la cantidad de niveles para el firmId
-          return (levelObject[firmId].length)-1;
+      // Iterar sobre las claves (niveles) de levels
+      for (const levelKey in levels) {
+        if (Object.hasOwnProperty.call(levels, levelKey)) {
+          // Obtener el objeto correspondiente al nivel actual
+          const levelObject = levels[levelKey];
+
+          // Verificar si firmId existe en el nivel actual
+          if (levelObject[firmId] && levelObject[firmId].length > 0) {
+            // Retornar la cantidad de niveles para el firmId
+            return levelObject[firmId].length - 1;
+          }
         }
       }
     }
-  }
 
-  // Retornar 0 si no se encuentra el firmId en ningún nivel
-  return "Final";
-};
+    // Retornar 0 si no se encuentra el firmId en ningún nivel
+    return "Final";
+  };
 
+  const getNumberOfPart = (firmStructure, firmId) => {
+    // Verificar si firmStructure existe y tiene la propiedad levels
+    if (firmStructure?.levels) {
+      const { levels } = firmStructure;
 
-const getNumberOfPart = (firmStructure, firmId) => {
-  // Verificar si firmStructure existe y tiene la propiedad levels
-  if (firmStructure?.levels) {
-    const { levels } = firmStructure;
+      // Iterar sobre las claves (niveles) de levels
+      for (const levelKey in levels) {
+        if (Object.hasOwnProperty.call(levels, levelKey)) {
+          // Obtener el objeto correspondiente al nivel actual
+          const levelObject = levels[levelKey];
 
-    // Iterar sobre las claves (niveles) de levels
-    for (const levelKey in levels) {
-      if (Object.hasOwnProperty.call(levels, levelKey)) {
-        // Obtener el objeto correspondiente al nivel actual
-        const levelObject = levels[levelKey];
-
-        // Verificar si firmId existe en el nivel actual
-        if (levelObject[firmId] && levelObject[firmId].length > 0) {
-          // Retornar la cantidad de niveles para el firmId
-          return (levelObject[firmId].length);
+          // Verificar si firmId existe en el nivel actual
+          if (levelObject[firmId] && levelObject[firmId].length > 0) {
+            // Retornar la cantidad de niveles para el firmId
+            return levelObject[firmId].length;
+          }
         }
       }
     }
-  }
 
-  // Retornar 0 si no se encuentra el firmId en ningún nivel
-  return 0;
-};
+    // Retornar 0 si no se encuentra el firmId en ningún nivel
+    return 0;
+  };
 
-
-
-/*const getFinalFirmsInfo = (firmStructure, firmId) => {
+  /*const getFinalFirmsInfo = (firmStructure, firmId) => {
   //console.log('para la firm:',firmId )
   if (firmStructure?.levels) {
     const { levels, finalFirms } = firmStructure;
@@ -195,7 +207,7 @@ const getNumberOfPart = (firmStructure, firmId) => {
   // Retornar un array vacío si no se encuentra el firmId en ningún nivel
   return [];
 };*/
-//getFinalFirmsInfo (firmStructure, 48)
+  //getFinalFirmsInfo (firmStructure, 48)
   return (
     <AnimatePresence>
       <motion.div
@@ -217,7 +229,7 @@ const getNumberOfPart = (firmStructure, firmId) => {
               <label className="select-none">Incluir en la exportación</label>
             </div>
             <h2 className="select-none text-lg" data-name={firm.name}>
-              {firm.name} -  {firm.firmId}
+              {firm.name} - {firm.firmId}
             </h2>
           </div>
 
@@ -247,11 +259,15 @@ const getNumberOfPart = (firmStructure, firmId) => {
               <div className="text-sm">SAP code</div>
             </div>
             <div className="flex flex-col justify-center items-center">
-              <div className="font-light text-lg">{getNumberOfPart(firmStructure, firm.firmId)}</div>
+              <div className="font-light text-lg">
+                {getNumberOfPart(firmStructure, firm.firmId)}
+              </div>
               <div className="text-sm">Participiación</div>
             </div>
             <div className="flex flex-col justify-center items-center">
-              <div className="font-light text-lg">{getNumberOfLevels(firmStructure, firm.firmId)}</div>
+              <div className="font-light text-lg">
+                {getNumberOfLevels(firmStructure, firm.firmId)}
+              </div>
               <div className="text-sm">Niveles</div>
             </div>
           </div>
@@ -381,7 +397,7 @@ const getNumberOfPart = (firmStructure, firmId) => {
                       <option value="4">Nivel 4</option>
                     </select>
                   </div>
-                  <div className="tree_container">
+                  <div id="organigrama" className="tree_container">
                     <div className="flex items-center gap-1">
                       <svg
                         width="23"
@@ -417,32 +433,32 @@ const getNumberOfPart = (firmStructure, firmId) => {
                       </svg>
                     </div>
                     <div className="level_one">
-                      <div className="investor_level_one">
+                      <div className="investor_level">
                         <CustomSVGContainer fill="#177E89" />
                         <p className="percentage_level">45</p>
                         <p>{"investor_name"}</p>
                       </div>
                       <div className="level_two">
-                        <div className="investor_level_one">
+                        <div className="investor_level">
                           <CustomSVGContainer fill="#db3a34" />
                           <p className="percentage_level">36</p>
                           <p>{"investor_name"}</p>
                         </div>
                       </div>
                       <div className="level_two">
-                        <div className="investor_level_one">
+                        <div className="investor_level">
                           <CustomSVGContainer fill="#db3a34" />
                           <p className="percentage_level">15</p>
                           <p>{"investor_name"}</p>
                         </div>
                         <div className="level_three">
-                          <div className="investor_level_one">
+                          <div className="investor_level">
                             <CustomSVGContainer fill="#FFC857" />
                             <p className="percentage_level">25</p>
                             <p>{"investor_name"}</p>
                           </div>
                           <div className="last_level">
-                            <div className="investor_level_one">
+                            <div className="investor_level">
                               <CustomSVGContainer fill="#FFC857" />
                               <p className="percentage_level">10</p>
                               <p>{"investor_name"}</p>
@@ -452,14 +468,14 @@ const getNumberOfPart = (firmStructure, firmId) => {
                       </div>
                     </div>
                     <div className="level_one">
-                      <div className="investor_level_one">
+                      <div className="investor_level">
                         <CustomSVGContainer fill="#177E89" />
                         <p className="percentage_level">{5}</p>
                         <p>{"investor_name"}</p>
                       </div>
                     </div>
                     <div className="level_one">
-                      <div className="investor_level_one">
+                      <div className="investor_level">
                         <CustomSVGContainer fill="#177E89" />
                         <p className="percentage_level">{2}</p>
                         <p>{"investor_name"}</p>
@@ -500,19 +516,23 @@ const getNumberOfPart = (firmStructure, firmId) => {
                         />
                       </svg>
                     </div>
-                   {/* Renderizar la información de niveles y sociedades */}
-{levelSocietiesInfo.map((levelInfo, index) => (
-  <div key={index}>
-    <p>Nivel: {levelInfo.level}</p>
-    <ul>
-      {levelInfo.societies.map((societyInfo, innerIndex) => (
-        <li key={innerIndex}>
-          ID Sociedad: {societyInfo.societyId}, ID Inversionistas: {societyInfo.investorIds.join(", ")}
-        </li>
-      ))}
-    </ul>
-  </div>
-))}
+                    {/* Renderizar la información de niveles y sociedades */}
+                    {levelSocietiesInfo.map((levelInfo, index) => (
+                      <div key={index}>
+                        <p>Nivel: {levelInfo.level}</p>
+                        <ul>
+                          {levelInfo.societies.map(
+                            (societyInfo, innerIndex) => (
+                              <li key={innerIndex}>
+                                ID Sociedad: {societyInfo.societyId}, ID
+                                Inversionistas:{" "}
+                                {societyInfo.investorIds.join(", ")}
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    ))}
 
                     <div
                       style={{ borderBottom: "3px solid #fff" }}
