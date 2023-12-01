@@ -157,7 +157,7 @@ const porcentajes = [];
 const idprocen = [];
 const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const dispatch = useDispatch();
-  const { firmOwnersMap, actualVersion } = useSelector((state) => state);
+  const { firmOwnersMap } = useSelector((state) => state);
   const { response } = firmOwnersMap;
   console.log("response", response);
   let firms = response ? response.firms : [];
@@ -502,7 +502,10 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               <label className="select-none">Incluir en la exportación</label>
             </div>
             <h2 className="select-none text-lg" data-name={firm.name}>
-              {firm.name} - {firm.firmId}
+              {firm.name} -  {firm.firmId}
+            </h2>
+            <h2 hidden className="select-none text-lg" data-firmId={firm.firmId} >
+              {firm.firmId}
             </h2>
           </div>
 

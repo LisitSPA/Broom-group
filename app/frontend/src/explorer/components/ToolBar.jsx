@@ -4,11 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import Firm from "./Firm";
 import { openModal } from "@/redux/actions/modal";
 import { useDispatch } from "react-redux";
+import axios from 'axios';
 
 const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [selectBulk, setSlectBulk] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const numberOfCompanies =
     filteredData && filteredData.length > 0
@@ -29,7 +31,18 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   const handleSelectAllCheckbox = () => {
     // Obtener todos los checkboxes con la clase 'checkbox'
     const checkboxes = document.querySelectorAll(".checkbox");
+    // Iterar sobre cada checkbox y activarlo
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = !selectAllChecked;
+    });
 
+    // Actualizar el estado
+    setSelectAllChecked(!selectAllChecked);
+  };
+
+  const handleSelectCheckbox = () => {
+    // Obtener todos los checkboxes con la clase 'checkbox'
+    const checkboxes = document.querySelectorAll(".checkbox:checked");
     // Iterar sobre cada checkbox y activarlo
     checkboxes.forEach((checkbox) => {
       checkbox.checked = !selectAllChecked;
@@ -43,34 +56,108 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
     dispatch(openModal("modalDownloadExplorer"));
   };
 
-  const handleExport = () => {
-    // Obtén todos los checkboxes
+  const fetchFirmData = async (id) =>{
+    let path = window.location.href;
+    const resultData = await axios.get(`${path}api/v1/firms/${id}`);
+    return resultData.data; 
+  }
+
+  const sumarAdjacencyListPorId = (objeto, id) => {
+    const adjacencyList = objeto.ownersMap.adjacencyList;
+  
+    // Verificar si el ID existe en el adjacencyList
+    if (adjacencyList.hasOwnProperty(id)) {
+      const subAdjacencyList = adjacencyList[id];
+  
+      // Obtenemos los valores y los sumamos
+      const suma = Object.values(subAdjacencyList).reduce((acumulador, valor) => acumulador + valor, 0);
+  
+      return suma;
+    } else {
+      console.error(`El ID ${id} no existe en el adjacencyList.`);
+      return null;
+    }
+  }
+
+  const handleExport = async () => {
     const checkboxes = document.querySelectorAll(".checkbox");
     const selectedCheckboxes = Array.from(checkboxes).filter(
       (checkbox) => checkbox.checked
     );
-    const selectedData = Array.from(selectedCheckboxes)
-      .map((checkbox) => {
-        const firmContainer = checkbox.closest(".flex.justify-between");
-        if (firmContainer) {
-          const firmRutElement = firmContainer.querySelector("[data-rut]");
-          const firmDataCountryCodeElement =
-            firmContainer.querySelector("[data-country]");
-          if (firmRutElement) {
-            const rut = firmRutElement.textContent.trim();
-            const dataCountry = firmDataCountryCodeElement.textContent.trim();
-            return { rut, dataCountry };
-          }
-        }
-        return null;
-      })
-      .filter(Boolean);
 
-    setFilteredData(selectedData);
+    let selectedData = [];
+        
+    for (const checkbox of selectedCheckboxes) {
+      const firmContainer = checkbox.closest(".flex.justify-between");
+      if (firmContainer) {
+        const firmIdElement = firmContainer.querySelector("[data-firmId]");
+        let firmNumberId = parseInt(firmIdElement.textContent.trim());
+        console.log("Firm Number ID:", firmNumberId);
+
+        let dataFirms = await fetchFirmData(firmNumberId);
+  
+        let rutFilial = dataFirms.rut;
+        let filial = dataFirms.title;
+        let propietario = dataFirms.title;
+        let sapFilial = dataFirms.sapCode;
+        let rutPropietario = "";
+        let propietario2 = "";
+        let nivel = "";
+        let sapPropietario = "";
+
+        if (dataFirms.ownersMap && dataFirms.ownersMap.levels) {
+          // Iterar a través de los niveles
+            for (const level in dataFirms.ownersMap.levels) {
+              if (dataFirms.ownersMap.levels.hasOwnProperty(level)) {
+                console.log(`Nivel ${level}:`);
+          
+                // Iterar a través de las firmas en este nivel
+                for (const firmId in dataFirms.ownersMap.levels[level]) {
+                  if (dataFirms.ownersMap.levels[level].hasOwnProperty(firmId)) {
+                    console.log(`  - Firm ID ${firmId}`);
+                    let dataFirms2 = await fetchFirmData(firmId);
+
+                    let porcentajeSuma = sumarAdjacencyListPorId(dataFirms2, firmId);
+                    console.log("porcentajeSuma");
+                    console.log(porcentajeSuma);
+
+                    rutPropietario = dataFirms2.rut;
+                    propietario2 = dataFirms2.title;
+                    nivel = level;
+                    sapPropietario = dataFirms2.sapCode;
+                    
+                    selectedData.push({
+                      rutFilial: rutFilial,
+                      filial: filial,
+                      propietario: propietario, 
+                      sapFilial: sapFilial, 
+                      rutPropietario: rutPropietario, 
+                      propietario2: propietario2, 
+                      nivel: nivel, 
+                      porcentaje: porcentajeSuma, 
+                      sapPropietario: sapPropietario, 
+                      dataCountry: "dataCountry"
+                    })
+                  }
+                }
+              }
+            }
+          } else {
+            console.error('La propiedad "ownersMap.levels" no está presente en el objeto.');
+          }
+      }
+    }
+    setFilteredData(selectedData.filter(Boolean));
   };
 
   const handlerBulkImportCompanies = () => {
     handleSelectAllCheckbox();
+    handleExport();
+    handleOpenModal();
+  };
+
+  const handlerBulkImportCompaniesFinals = () => {
+    handleSelectCheckbox();
     handleExport();
     handleOpenModal();
   };
@@ -150,7 +237,8 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
                 <p className="text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer">
                   exportar solo sociedades finales
                 </p>
-                <p className="text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer">
+                <p className="text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer"
+                  onClick={handlerBulkImportCompaniesFinals} >
                   exportar solo stockholders
                 </p>
                 <hr className="border-b-2 border-gray-300" />
