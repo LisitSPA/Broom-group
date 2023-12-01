@@ -6,12 +6,73 @@ import { useSelector, useDispatch } from "react-redux";
 import { callFirm } from "@/redux/actions/firms";
 import CustomSVGContainer from "./CustomSVGContainer";
 import createCsvWriter from "csv-writer";
+function renderSubLevels(subLevels) {
+  if (!subLevels || subLevels.length === 0) {
+    return null;
+  }
+
+  return (
+    <ul>
+      {subLevels.map((subLevel, index) => (
+        <li key={index}>
+          <div
+            style={{
+              borderBottom: "3px solid #fff",
+              backgroundColor: getFillColor(subLevel.level),
+            }}
+            className="flex items-center gap-5 justify-between px-5 text-xs"
+          >
+            <p>
+              {subLevel.investorIdt} - {subLevel.societyNameh}
+            </p>
+            <p>{subLevel.porcentaje}</p>
+            <p>{subLevel.rutinv}</p>
+          </div>
+          {/* Renderiza los elementos del siguiente nivel recursivamente */}
+          {renderSubLevels(subLevel.subLevels)}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function getFillColor(level) {
+  // Define tus colores según el nivel aquí
+  // Puedes usar un switch, if-else, o cualquier lógica que prefieras
+  switch (level) {
+    case "1":
+      return "#177E89";
+    case "2":
+      return "#db3a34";
+    case "3":
+      return "#FFC857";
+    // Agrega más casos según tus necesidades
+    default:
+      return "#000000";
+  }
+}
+function getLevelClassName(level) {
+  switch (level) {
+    case "1":
+      return "one";
+    case "2":
+      return "two";
+    case "3":
+      return "level_three";
+    case "4":
+      return "last_level";
+    // Puedes agregar más casos según sea necesario
+    default:
+      return `level_${level}`;
+  }
+}
 const translateLevels = (ownersMap, firms, response) => {
   const levelSocietiesInfo = [];
 
   if (ownersMap) {
     console.log("ownersMap", ownersMap);
     const { levels } = ownersMap;
+    console.log("ownersMap", ownersMap);
 
     for (const levelKey in levels) {
       if (Object.hasOwnProperty.call(levels, levelKey)) {
@@ -20,11 +81,29 @@ const translateLevels = (ownersMap, firms, response) => {
 
         for (const innerKey in innerObject) {
           if (Object.hasOwnProperty.call(innerObject, innerKey)) {
-            const societyInfo = {
-              societyId: innerKey,
-              investorIds: innerObject[innerKey],
-            };
-            societiesInfo.push(societyInfo);
+            const societyId = innerKey;
+            const investorIds = innerObject[innerKey];
+
+            // Buscar el nombre de la sociedad utilizando el ID
+            const societyName = findSocietyNameById(societyId);
+            if (Array.isArray(investorIds) && investorIds.length > 0) {
+              investorIds.forEach((investorId) => {
+                const societyInfo = {
+                  societyId: innerKey,
+                  investorId: investorId,
+                  societyName: societyName,
+                };
+                societiesInfo.push(societyInfo);
+              });
+            } else {
+              // Si investorIds no es un array o está vacío, agregar una entrada con investorId vacío
+              const societyInfo = {
+                societyId: innerKey,
+                investorId: "",
+                societyName: societyName,
+              };
+              societiesInfo.push(societyInfo);
+            }
           }
         }
 
@@ -38,9 +117,44 @@ const translateLevels = (ownersMap, firms, response) => {
     }
   }
 
+  /************************************************** */
+  const { adjacencyList } = ownersMap;
+  for (const vertex in adjacencyList) {
+    console.log(`Vertex ${vertex}:`);
+
+    // Verificar si el valor asociado a la propiedad es un objeto
+    if (
+      typeof adjacencyList[vertex] === "object" &&
+      !Array.isArray(adjacencyList[vertex])
+    ) {
+      // Iterar sobre las propiedades del objeto interno
+      for (const neighbor in adjacencyList[vertex]) {
+        const percentage = adjacencyList[vertex][neighbor];
+        console.log(`  Edge to ${neighbor}: ${percentage}%`);
+        porcentajes.push({
+          id: neighbor,
+          porcentaje: percentage,
+          padre: vertex,
+        });
+      }
+    }
+  }
+
   return levelSocietiesInfo;
 };
+const findSocietyNameById = (societyId, response) => {
+  console.log("societyIdstodas", societyId);
+  console.log("societyNamestodas", societyNamestodas);
+  const index = societyIdstodas.indexOf(societyId);
+  console.log("Nombre de la sociedad:", index);
+  return index !== -1 ? societyNamestodas[index] : "Nombre no encontrado";
+};
 
+const societyIdstodas = [];
+const societyNamestodas = [];
+const rutsociedad = [];
+const porcentajes = [];
+const idprocen = [];
 const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const dispatch = useDispatch();
   const { firmOwnersMap, actualVersion } = useSelector((state) => state);
@@ -54,6 +168,13 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const [firmStructure, setFirmStructure] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [levelSocietiesInfo, setLevelSocietiesInfo] = useState([]);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [groupedInfo, setGroupedInfo] = useState([]);
+  const [highestLevel, setHighestLevel] = useState(0);
+
+  useEffect(() => {
+    setIsPageLoaded(true);
+  }, []);
 
   useEffect(() => {
     setIsChecked(selectAllChecked);
@@ -78,27 +199,139 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const handleCheckbox = () => {
     setIsChecked((prevChecked) => !prevChecked);
   };
+
+  const handleOpenToggle = () => {
+    //console.log('porcentaje', porcentajes);
+
+    //console.log(`El porcentaje es es: ${padre}`);
+    const result = [];
+    levelSocietiesInfo.forEach((levelInfo, outerIndex) => {
+      levelInfo.societies.forEach((societyInfo, innerIndex) => {
+        let title = "";
+        let title2 = "";
+        let padre = "";
+        let rut = "";
+        let rutinv = "";
+
+        if (societyInfo.investorId) {
+          padre = buscarPadre(
+            societyInfo.societyId,
+            societyInfo.investorId,
+            porcentajes
+          );
+          societyIdstodas.forEach((elemento, indice) => {
+            if (elemento === societyInfo.investorId) {
+              title = societyNamestodas[indice];
+              rutinv = rutsociedad[indice];
+            }
+          });
+        }
+        societyIdstodas.forEach((elemento, indice) => {
+          if (elemento == societyInfo.societyId) {
+            title2 = societyNamestodas[indice];
+            rut = rutsociedad[indice];
+
+            console.log("paso");
+          }
+        });
+
+        const societyInfototal = {
+          investorIdt: societyInfo.investorId,
+          societyNameh: title,
+          porcentaje: padre,
+          rutinv: rutinv,
+        };
+
+        result.push({
+          level: levelInfo.level,
+          societyIdt: societyInfo.societyId,
+          societyNamet: title2,
+          societies: societyInfototal,
+          rutsociedadt: rut,
+        });
+      });
+    });
+
+    console.log("result", result);
+
+    // Agrupar por nivel
+    const groupedByLevel = {};
+
+    // Agrupar por nivel y sociedadIdt
+    const groupedByLevelAndSocietyIdt = {};
+
+    result.forEach((item) => {
+      if (!groupedByLevelAndSocietyIdt[item.level]) {
+        groupedByLevelAndSocietyIdt[item.level] = {};
+      }
+
+      if (!groupedByLevelAndSocietyIdt[item.level][item.societyIdt]) {
+        groupedByLevelAndSocietyIdt[item.level][item.societyIdt] = [];
+      }
+
+      groupedByLevelAndSocietyIdt[item.level][item.societyIdt].push(item);
+    });
+    console.log(groupedByLevelAndSocietyIdt);
+    setGroupedInfo(groupedByLevelAndSocietyIdt);
+    const highestLevel = Math.max(
+      ...Object.keys(groupedByLevelAndSocietyIdt).map(Number)
+    );
+    setHighestLevel(highestLevel);
+    console.log(highestLevel);
+    // Imprimir la vista por cada nivel y sociedadIdt
+    /*Object.keys(groupedByLevelAndSocietyIdt).forEach((level) => {
+  console.log(`Nivel ${level}:`);
+  Object.keys(groupedByLevelAndSocietyIdt[level]).forEach((societyIdt) => {
+    console.log(`  Sociedad ID: ${societyIdt}`);
+    groupedByLevelAndSocietyIdt[level][societyIdt].forEach((item) => {
+      
+      console.log(`    Investor ID: ${item.societies.investorIdt}`);
+      console.log(`    Nombre de la Sociedad: ${item.societies.societyNameh}`);
+      console.log('\n');
+    });
+  });
+});*/
+  };
+
+  function buscarPadre(idPadre, idHijo, datos) {
+    // console.log('datoos', datos)
+    const nodosUnicos = Array.from(new Set(datos.map(JSON.stringify))).map(
+      JSON.parse
+    );
+    // console.log(nodosUnicos)
+
+    for (const nodo of nodosUnicos) {
+      if (nodo.id == idHijo && nodo.padre == idPadre) {
+        return nodo.porcentaje;
+      }
+    }
+  }
   const toggleDialog = () => {
     setShowDialog(!showDialog);
   };
   const toggleOpen = () => {
-    setIsOpen(!isOpen);
+    if (isPageLoaded) {
+      setIsOpen(!isOpen);
+      handleOpenToggle();
+    }
   };
+  useEffect(() => {
+    // Llama a la función cuando isOpen cambia
+    handleOpenToggle();
+  }, [isOpen, response, firmId, firms]);
 
   useEffect(() => {
-    const info = translateLevels(firmStructure, firms, response);
-    setLevelSocietiesInfo(info);
-    if (!firmStructure) {
-      dispatch(callFirm(firmId));
-    }
-  }, [isOpen, firmStructure, firmId, response, dispatch]);
+    dispatch(callFirm(firmId));
+  }, [firmId]);
 
   useEffect(() => {
     if (response && response.firmId === firmId) {
       setFirmStructure(response.ownersMap);
-      // console.log("callFirm values:", firmId, response);
-      // También actualiza el título aquí
-      const title = response.title; // Reemplaza con la propiedad correcta de response
+      const title = response.title;
+      societyIdstodas.push(response.firmId);
+      societyNamestodas.push(response.title);
+      rutsociedad.push(response.rut);
+      console.log("arrey", rutsociedad);
       setLevelSocietiesInfo((prevInfo) =>
         prevInfo.map((levelInfo) => ({
           ...levelInfo,
@@ -108,8 +341,12 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
           })),
         }))
       );
+
+      // Translate levels once the response is available
+      const info = translateLevels(response.ownersMap, firms, response);
+      setLevelSocietiesInfo(info);
     }
-  }, [response, firmId]);
+  }, [response, firmId, dispatch, firms]);
 
   const classes = classNames(
     "flex justify-between items-center p-6 z-20 rounded-md",
@@ -176,6 +413,42 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
     return 0;
   };
 
+  const renderLevels = (info, currentLevel, getLevelClassName) => (
+    <div key={currentLevel} className={getLevelClassName(currentLevel)}>
+      <p>Nivel {currentLevel}:</p>
+      {Object.keys(info).map((societyIdt) => (
+        <div key={societyIdt}>
+          <p>
+            Sociedad ID: {societyIdt} - Nombres:
+            {info[societyIdt][0].societyNamet} - Rut:
+            {info[societyIdt][0].rutsociedadt}
+          </p>
+          <ul>
+            {info[societyIdt].map((item, index) => (
+              <li key={index}>
+                <div
+                  style={{ borderBottom: "3px solid #fff" }}
+                  className="flex items-center gap-5 justify-between px-5 text-xs"
+                >
+                  <p>
+                    {item.societies.investorIdt}- {item.societies.societyNameh}
+                  </p>
+                  <p>{item.societies.porcentaje}</p>
+                  <p>{item.societies.rutinv}</p>
+                </div>
+                {item.children &&
+                  renderLevels(
+                    item.children,
+                    currentLevel + 1,
+                    getLevelClassName
+                  )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
   /*const getFinalFirmsInfo = (firmStructure, firmId) => {
   //console.log('para la firm:',firmId )
   if (firmStructure?.levels) {
@@ -432,6 +705,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                         />
                       </svg>
                     </div>
+
                     <div className="level_one">
                       <div className="investor_level">
                         <CustomSVGContainer fill="#177E89" />
@@ -516,41 +790,67 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                         />
                       </svg>
                     </div>
-                    {/* Renderizar la información de niveles y sociedades */}
-                    {levelSocietiesInfo.map((levelInfo, index) => (
-                      <div key={index}>
-                        <p>Nivel: {levelInfo.level}</p>
-                        <ul>
-                          {levelInfo.societies.map(
-                            (societyInfo, innerIndex) => (
-                              <li key={innerIndex}>
-                                ID Sociedad: {societyInfo.societyId}, ID
-                                Inversionistas:{" "}
-                                {societyInfo.investorIds.join(", ")}
-                              </li>
-                            )
-                          )}
-                        </ul>
+                    {/* Renderiza la información agrupada en el HTML */}
+
+                    {Object.keys(groupedInfo).map((level) => (
+                      <div key={level}>
+                        {level === highestLevel.toString() && (
+                          <div>
+                            <p>Nivel {level}:</p>
+                            {Object.keys(groupedInfo[level]).map(
+                              (societyIdt) => (
+                                <div key={societyIdt}>
+                                  <p>
+                                    Sociedad ID: {societyIdt} - Nombres:
+                                    {
+                                      groupedInfo[level][societyIdt][0]
+                                        .societyNamet
+                                    }
+                                    - Rut:
+                                    {
+                                      groupedInfo[level][societyIdt][0]
+                                        .rutsociedadt
+                                    }
+                                  </p>
+                                  <ul>
+                                    {groupedInfo[level][societyIdt].map(
+                                      (item, index) => (
+                                        <li key={index}>
+                                          <div
+                                            style={{
+                                              borderBottom: "3px solid #fff",
+                                            }}
+                                            className="flex items-center gap-5 justify-between px-5 text-xs"
+                                          >
+                                            <p>
+                                              {item.societies.investorIdt}-
+                                              {item.societies.societyNameh}
+                                            </p>
+
+                                            <p>{item.societies.porcentaje}</p>
+                                            <p>{item.societies.rutinv}</p>
+                                          </div>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
 
-                    <div
-                      style={{ borderBottom: "3px solid #fff" }}
-                      className="flex items-center gap-5 justify-between px-5 text-xs"
-                    >
-                      <p>Nombre de la sociedad</p>
-                      <p>25%</p>
-                      <p>11.111.111-2</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex justify-start items-center gap-1 ">
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={handleCheckbox}
-                        className="checkbox"
-                      />
+                    <div className="flex flex-col">
+                      <div className="flex justify-start items-center gap-1 ">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={handleCheckbox}
+                          className="checkbox"
+                        />
+                      </div>
                       <p>Shareholders</p>
                       <svg
                         width="10"
@@ -568,15 +868,55 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                         />
                       </svg>
                     </div>
-                    <div
-                      style={{ borderBottom: "3px solid #fff" }}
-                      className="flex items-center gap-5 justify-between border-b-3 border-white px-5 text-xs"
-                    >
-                      <p>Nombre de la sociedad</p>
-                      <p>25%</p>
-                      <p>11.111.111-2</p>
-                      <p>email@email.com</p>
-                    </div>
+                    {Object.keys(groupedInfo).map((level) => (
+                      <div key={level}>
+                        {level != highestLevel.toString() && (
+                          <div>
+                            <p>Nivel {level}:</p>
+                            {Object.keys(groupedInfo[level]).map(
+                              (societyIdt) => (
+                                <div key={societyIdt}>
+                                  <p>
+                                    Sociedad ID: {societyIdt} - Nombres:
+                                    {
+                                      groupedInfo[level][societyIdt][0]
+                                        .societyNamet
+                                    }
+                                    - Rut:
+                                    {
+                                      groupedInfo[level][societyIdt][0]
+                                        .rutsociedadt
+                                    }
+                                  </p>
+                                  <ul>
+                                    {groupedInfo[level][societyIdt].map(
+                                      (item, index) => (
+                                        <li key={index}>
+                                          <div
+                                            style={{
+                                              borderBottom: "3px solid #fff",
+                                            }}
+                                            className="flex items-center gap-5 justify-between px-5 text-xs"
+                                          >
+                                            <p>
+                                              {item.societies.investorIdt}-
+                                              {item.societies.societyNameh}
+                                            </p>
+
+                                            <p>{item.societies.porcentaje}</p>
+                                            <p>{item.societies.rutinv}</p>
+                                          </div>
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
