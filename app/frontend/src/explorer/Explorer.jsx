@@ -20,6 +20,7 @@ const Explorer = () => {
         <div className="container mx-auto">
           <ToolBar
             setFilteredData={setFilteredData}
+            filteredData={filteredData}
             onSearchTermChange={handleSearchTermChange}
           />
           <FirmContainer searchTerm={searchTerm} />

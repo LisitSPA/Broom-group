@@ -1,13 +1,29 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeModal } from "@/redux/actions/modal";
+import Papa from "papaparse";
 
 export const ModalDownload = ({ data }) => {
   const dispatch = useDispatch();
   const { modal } = useSelector((state) => state);
   const { isOpen } = modal;
+
   const handleClose = () => dispatch(closeModal());
 
+  const handlerDownLoad = () => {
+    // Convertir datos a formato CSV usando papaparse
+    const csvData = Papa.unparse(data, {
+      header: true,
+    });
+    // Crear un objeto Blob con los datos CSV
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
+    // Crear un enlace de descarga y hacer clic en él
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "exported_data.csv";
+    link.click();
+    handleClose();
+  };
   return (
     <>
       {isOpen && (
@@ -102,7 +118,7 @@ export const ModalDownload = ({ data }) => {
               <div className="flex justify-between items-center">
                 <div className="flex justify-between items-center gap-5">
                   <button
-                    onClick={() => handleClose()}
+                    onClick={() => handlerDownLoad()}
                     className="border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white flex justify-between items-center gap-5"
                   >
                     <svg
