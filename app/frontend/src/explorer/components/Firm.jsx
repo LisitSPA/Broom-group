@@ -25,7 +25,7 @@ function renderSubLevels(subLevels) {
             <p>
               {subLevel.investorIdt} - {subLevel.societyNameh}
             </p>
-            <p>{subLevel.porcentaje}</p>
+            <p>{subLevel.porcentaje} %</p>
             <p>{subLevel.rutinv}</p>
           </div>
           {/* Renderiza los elementos del siguiente nivel recursivamente */}
@@ -433,7 +433,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                   <p>
                     {item.societies.investorIdt}- {item.societies.societyNameh}
                   </p>
-                  <p>{item.societies.porcentaje}</p>
+                  <p>{item.societies.porcentaje}%</p>
                   <p>{item.societies.rutinv}</p>
                 </div>
                 {item.children &&
@@ -762,6 +762,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                   style={{
                     width: "50%",
                     minHeight: "300px",
+                    padding: "5px",
                   }}
                 >
                   <h3 style={{ textAlign: "center" }}>{firm.name}</h3>
@@ -800,18 +801,27 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                             {Object.keys(groupedInfo[level]).map(
                               (societyIdt) => (
                                 <div key={societyIdt}>
-                                  <p>
-                                    Sociedad ID: {societyIdt} - Nombres:
-                                    {
-                                      groupedInfo[level][societyIdt][0]
-                                        .societyNamet
-                                    }
-                                    - Rut:
-                                    {
-                                      groupedInfo[level][societyIdt][0]
-                                        .rutsociedadt
-                                    }
-                                  </p>
+                                  <div
+                                    style={{
+                                      borderBottom: "3px solid #fff",
+                                    }}
+                                    className="flex items-center gap-5 justify-between px-5 text-xs"
+                                  >
+                                    <p>{societyIdt}</p>
+                                    <p>
+                                      {
+                                        groupedInfo[level][societyIdt][0]
+                                          .societyNamet
+                                      }
+                                    </p>
+                                    <p>
+                                      {
+                                        groupedInfo[level][societyIdt][0]
+                                          .rutsociedadt
+                                      }
+                                    </p>
+                                  </div>
+
                                   <ul>
                                     {groupedInfo[level][societyIdt].map(
                                       (item, index) => (
@@ -822,12 +832,12 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                             }}
                                             className="flex items-center gap-5 justify-between px-5 text-xs"
                                           >
-                                            <p>
-                                              {item.societies.investorIdt}-
-                                              {item.societies.societyNameh}
-                                            </p>
+                                            <p>{item.societies.societyNameh}</p>
 
-                                            <p>{item.societies.porcentaje}</p>
+                                            <p>
+                                              {item?.societies?.porcentaje ||
+                                                item.societies.porcentaje + "%"}
+                                            </p>
                                             <p>{item.societies.rutinv}</p>
                                           </div>
                                         </li>
@@ -850,23 +860,24 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                           onChange={handleCheckbox}
                           className="checkbox"
                         />
+
+                        <p>Shareholders</p>
+                        <svg
+                          width="10"
+                          height="6"
+                          viewBox="0 0 10 6"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M8.75 1.125L5 4.875L1.25 1.125"
+                            stroke="#787878"
+                            stroke-width="1.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
                       </div>
-                      <p>Shareholders</p>
-                      <svg
-                        width="10"
-                        height="6"
-                        viewBox="0 0 10 6"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8.75 1.125L5 4.875L1.25 1.125"
-                          stroke="#787878"
-                          stroke-width="1.2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
                     </div>
                     {Object.keys(groupedInfo).map((level) => (
                       <div key={level}>
@@ -876,18 +887,26 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                             {Object.keys(groupedInfo[level]).map(
                               (societyIdt) => (
                                 <div key={societyIdt}>
-                                  <p>
-                                    Sociedad ID: {societyIdt} - Nombres:
-                                    {
-                                      groupedInfo[level][societyIdt][0]
-                                        .societyNamet
-                                    }
-                                    - Rut:
-                                    {
-                                      groupedInfo[level][societyIdt][0]
-                                        .rutsociedadt
-                                    }
-                                  </p>
+                                  <div
+                                    style={{
+                                      borderBottom: "3px solid #fff",
+                                    }}
+                                    className="flex items-center gap-5 justify-between px-5 text-xs"
+                                  >
+                                    <p> {societyIdt}</p>
+                                    <p>
+                                      {
+                                        groupedInfo[level][societyIdt][0]
+                                          .societyNamet
+                                      }
+                                    </p>
+                                    <p>
+                                      {
+                                        groupedInfo[level][societyIdt][0]
+                                          .rutsociedadt
+                                      }
+                                    </p>
+                                  </div>
                                   <ul>
                                     {groupedInfo[level][societyIdt].map(
                                       (item, index) => (
@@ -898,12 +917,11 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                             }}
                                             className="flex items-center gap-5 justify-between px-5 text-xs"
                                           >
-                                            <p>
-                                              {item.societies.investorIdt}-
-                                              {item.societies.societyNameh}
-                                            </p>
+                                            <p>{item.societies.societyNameh}</p>
 
-                                            <p>{item.societies.porcentaje}</p>
+                                            <p>
+                                              {item.societies.porcentaje + "%"}
+                                            </p>
                                             <p>{item.societies.rutinv}</p>
                                           </div>
                                         </li>
