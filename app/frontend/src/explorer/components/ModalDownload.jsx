@@ -101,28 +101,28 @@ export const ModalDownload = ({ data }) => {
                     {data?.map((row, index) => (
                       <tr key={index}>
                         <td className="py-2 px-4 border border-white bg-gray-200">
-                          {row.rut}
+                          {row.rutFilial}
                         </td>
                         <td className="py-2 px-4 border border-white bg-gray-200">
-                          {row.dataCountry}
+                          {row.filial}
                         </td>
                         <td className="py-2 px-4 border border-white bg-gray-200">
-                          {row.dataCountry}
+                          {row.nivel}
                         </td>
                         <td className="py-2 px-4 border border-white bg-gray-200">
-                          {row.dataCountry}
+                          {row.propietario2}
                         </td>
                         <td className="py-2 px-4 border border-white bg-gray-200">
-                          {row.dataCountry}
+                          {row.porcentaje}
                         </td>
                         <td className="py-2 px-4 border border-white bg-gray-200">
-                          {row.dataCountry}
+                          {row.rutPropietario}
                         </td>
                         <td className="py-2 px-4 border border-white bg-gray-200">
-                          {row.dataCountry}
+                          {row.sapFilial}
                         </td>
                         <td className="py-2 px-4 border border-white bg-gray-200">
-                          {row.dataCountry}
+                          {row.sapPropietario}
                         </td>
                       </tr>
                     ))}

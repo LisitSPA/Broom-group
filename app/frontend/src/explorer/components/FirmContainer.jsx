@@ -3,16 +3,17 @@ import Firm from "./Firm";
 import { useSelector, useDispatch } from "react-redux";
 import { callFirm } from "@/redux/actions/firms";
 
-const FirmContainer = React.memo(({ searchTerm }) => {
+const FirmContainer = ({ searchTerm }) => {
   const dispatch = useDispatch();
   const reduxState = useSelector((state) => state);
   let { firms } = reduxState.actualVersion.response;
-  useEffect(() => {
-    // Llamar a callFirm para cada firmId
-    firms.forEach((firm) => {
-      dispatch(callFirm(firm.firmId));
-    });
-  }, [dispatch, firms]);
+  // useEffect(() => {
+  //   // Llamar a callFirm para cada firmId
+  //   firms.forEach((firm) => {
+  //     dispatch(callFirm(firm.firmId));
+  //   });
+  // }, [dispatch, firms]);
+  
   const filteredFirms = firms.filter((firm) => {
     if (!searchTerm || searchTerm.trim() === "") {
       return true;
@@ -40,6 +41,6 @@ const FirmContainer = React.memo(({ searchTerm }) => {
       ))}
     </div>
   );
-});
+};
 
 export default FirmContainer;
