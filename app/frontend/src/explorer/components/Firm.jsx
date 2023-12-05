@@ -1065,7 +1065,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                         <input
                           type="checkbox"
                           checked={isChecked}
-                          onChange={handleCheckbox}
+                          onChange={handleCheckbox} 
                           className="checkbox"
                         />
                       </div>
