@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDownIcon, DotIcon } from "../../shared/assets/Icons";
@@ -6,6 +6,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { callFirm } from "@/redux/actions/firms";
 import CustomSVGContainer from "./CustomSVGContainer";
 import createCsvWriter from "csv-writer";
+import * as canvg from "canvg";
+import html2canvas from "html2canvas";
+
 function renderSubLevels(subLevels) {
   if (!subLevels || subLevels.length === 0) {
     return null;
@@ -481,6 +484,31 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   return [];
 };*/
   //getFinalFirmsInfo (firmStructure, 48)
+
+  const divRef = useRef(null);
+
+  const capturarDiv = () => {
+    if (divRef.current) {
+      const divToCapture = divRef.current;
+
+      // Usar html2canvas para capturar el contenido del div como una imagen
+      html2canvas(divToCapture)
+        .then((canvas) => {
+          // Crear un enlace para descargar la imagen
+          const link = document.createElement("a");
+          link.download = "captura_div.png";
+          link.href = canvas.toDataURL("image/png");
+
+          // Simular clic en el enlace para iniciar la descarga
+          link.click();
+        })
+        .catch((error) => {
+          // Manejar cualquier error que ocurra durante la captura
+          console.error("Error al capturar el div:", error);
+        });
+    }
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -502,9 +530,13 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               <label className="select-none">Incluir en la exportación</label>
             </div>
             <h2 className="select-none text-lg" data-name={firm.name}>
-              {firm.name} -  {firm.firmId}
+              {firm.name} - {firm.firmId}
             </h2>
-            <h2 hidden className="select-none text-lg" data-firmId={firm.firmId} >
+            <h2
+              hidden
+              className="select-none text-lg"
+              data-firmId={firm.firmId}
+            >
               {firm.firmId}
             </h2>
           </div>
@@ -673,7 +705,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                       <option value="4">Nivel 4</option>
                     </select>
                   </div>
-                  <div id="organigrama" className="tree_container">
+                  <div id="organigrama" className="tree_container" ref={divRef}>
                     <div className="flex items-center gap-1">
                       <svg
                         width="23"
@@ -759,6 +791,27 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                       </div>
                     </div>
                   </div>
+                  <button
+                    onClick={capturarDiv}
+                    className="border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white flex items-center gap-1 w-2/5"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 18 18"
+                      fill="none"
+                    >
+                      <path
+                        d="M6.75 5.06251V11.25M11.25 6.75001V12.9375M11.6273 15.561L15.2835 13.7333C15.5693 13.5908 15.75 13.2983 15.75 12.9788V3.61501C15.75 2.98801 15.09 2.58001 14.529 2.86051L11.6273 4.31101C11.3895 4.43026 11.1097 4.43026 10.8727 4.31101L7.12725 2.43901C7.01011 2.38046 6.88096 2.34998 6.75 2.34998C6.61904 2.34998 6.48989 2.38046 6.37275 2.43901L2.7165 4.26676C2.43 4.41001 2.25 4.70251 2.25 5.02126V14.385C2.25 15.012 2.91 15.42 3.471 15.1395L6.37275 13.689C6.6105 13.5698 6.89025 13.5698 7.12725 13.689L10.8727 15.5618C11.1105 15.6803 11.3903 15.6803 11.6273 15.5618V15.561Z"
+                        stroke="currentColor"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Descargar
+                  </button>
                 </div>
                 <div
                   className="flex flex-col gap-10"
