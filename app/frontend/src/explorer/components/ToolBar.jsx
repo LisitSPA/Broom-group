@@ -5,6 +5,7 @@ import Firm from "./Firm";
 import { openModal } from "@/redux/actions/modal";
 import { useDispatch } from "react-redux";
 import axios from 'axios';
+import { SnackbarUtilities } from "@/src/helpers/snackbar-manager";
 
 const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   const dispatch = useDispatch();
@@ -49,7 +50,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
     });
 
     // Actualizar el estado
-    setSelectAllChecked(!selectAllChecked);
+    // setSelectAllChecked(!selectAllChecked);
   };
 
   const handleOpenModal = () => {
@@ -79,12 +80,146 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
     }
   }
 
-  const handleExport = async () => {
-    const checkboxes = document.querySelectorAll(".checkbox");
-    const selectedCheckboxes = Array.from(checkboxes).filter(
-      (checkbox) => checkbox.checked
-    );
+  const handleExportStokHolders = async (selectedCheckboxes) => {
+    let selectedData = [];
+    for (const checkbox of selectedCheckboxes) {
+      const firmContainer = checkbox.closest(".flex.justify-between");
+      if (firmContainer) {
+        const firmIdElement = firmContainer.querySelector("[data-firmId]");
+        let firmNumberId = parseInt(firmIdElement.textContent.trim());
+        console.log("Firm Number ID:", firmNumberId);
 
+        let dataFirms = await fetchFirmData(firmNumberId);
+  
+        let rutFilial = dataFirms.rut;
+        let filial = dataFirms.title;
+        let propietario = dataFirms.title;
+        let sapFilial = dataFirms.sapCode;
+        let rutPropietario = "";
+        let propietario2 = "";
+        let nivel = "";
+        let sapPropietario = "";
+
+        if (dataFirms.ownersMap && dataFirms.ownersMap.levels) {
+
+          const levelsArray = Object.keys(dataFirms.ownersMap.levels);
+
+          // Iterar a través de los niveles
+            for (let i = 0; i < levelsArray.length - 1; i++) {
+              const level = levelsArray[i];
+              console.log(`Nivel ${level}:`);
+          
+                // Iterar a través de las firmas en este nivel
+                for (const firmId in dataFirms.ownersMap.levels[level]) {
+                  if (dataFirms.ownersMap.levels[level].hasOwnProperty(firmId)) {
+                    console.log(`  - Firm ID ${firmId}`);
+                    let dataFirms2 = await fetchFirmData(firmId);
+
+                    let porcentajeSuma = sumarAdjacencyListPorId(dataFirms2, firmId);
+
+                    rutPropietario = dataFirms2.rut;
+                    propietario2 = dataFirms2.title;
+                    nivel = level;
+                    sapPropietario = dataFirms2.sapCode;
+                    
+                    selectedData.push({
+                      rutFilial: rutFilial,
+                      filial: filial,
+                      propietario: propietario, 
+                      sapFilial: sapFilial, 
+                      rutPropietario: rutPropietario, 
+                      propietario2: propietario2, 
+                      nivel: nivel, 
+                      porcentaje: porcentajeSuma, 
+                      sapPropietario: sapPropietario, 
+                      dataCountry: "dataCountry"
+                    })
+                  }
+                }
+              // }
+            }
+          } else {
+            console.error('La propiedad "ownersMap.levels" no está presente en el objeto.');
+          }
+      }
+    }
+    setFilteredData(selectedData.filter(Boolean));
+    handleOpenModal();
+  }
+
+  const handleExportCompaniesFinals = async (selectedCheckboxes) => {
+    let selectedData = [];    
+    for (const checkbox of selectedCheckboxes) {
+      // const checkbox = selectedCheckboxes[i];
+      const firmContainer = checkbox.closest(".flex.justify-between");
+      if (firmContainer) {
+        const firmIdElement = firmContainer.querySelector("[data-firmId]");
+        let firmNumberId = parseInt(firmIdElement.textContent.trim());
+        console.log("Firm Number ID:", firmNumberId);
+
+        let dataFirms = await fetchFirmData(firmNumberId);
+
+        let rutFilial = dataFirms.rut;
+        let filial = dataFirms.title;
+        let propietario = dataFirms.title;
+        let sapFilial = dataFirms.sapCode;
+        let rutPropietario = "";
+        let propietario2 = "";
+        let nivel = "";
+        let sapPropietario = "";
+
+        if (dataFirms.ownersMap && dataFirms.ownersMap.levels) {
+
+          const levelsArray = Object.keys(dataFirms.ownersMap.levels);
+
+          // Obtenemos el último nivel
+          const lastLevel = levelsArray[levelsArray.length - 1];
+          const levelFirms = dataFirms.ownersMap.levels[lastLevel];
+
+          // Iterar a través de los niveles
+            for (const firmId in levelFirms) {
+              if (levelFirms.hasOwnProperty(firmId)) {
+                console.log(`Nivel ${lastLevel} - Firm ID ${firmId}`);
+
+                // Iterar a través de las firmas en este nivel
+                // for (const firmId in dataFirms.ownersMap.levels[lastLevel]) {
+                //   if (dataFirms.ownersMap.levels[lastLevel].hasOwnProperty(firmId)) {
+                    console.log(`  - Firm ID ${firmId}`);
+                    let dataFirms2 = await fetchFirmData(firmId);
+
+                    let porcentajeSuma = sumarAdjacencyListPorId(dataFirms2, firmId);
+
+                    rutPropietario = dataFirms2.rut;
+                    propietario2 = dataFirms2.title;
+                    nivel = lastLevel;
+                    sapPropietario = dataFirms2.sapCode;
+
+                    selectedData.push({
+                      rutFilial: rutFilial,
+                      filial: filial,
+                      propietario: propietario,
+                      sapFilial: sapFilial,
+                      rutPropietario: rutPropietario,
+                      propietario2: propietario2,
+                      nivel: nivel,
+                      porcentaje: porcentajeSuma,
+                      sapPropietario: sapPropietario,
+                      dataCountry: "dataCountry"
+                    })
+                  }
+                }
+            //   }
+            // }
+          } else {
+            console.error('La propiedad "ownersMap.levels" no está presente en el objeto.');
+          }
+      }
+    }
+    setFilteredData(selectedData.filter(Boolean));
+    handleOpenModal();
+  }
+
+  const handleExportMasive = async (selectedCheckboxes) => {
     let selectedData = [];
         
     for (const checkbox of selectedCheckboxes) {
@@ -118,8 +253,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
                     let dataFirms2 = await fetchFirmData(firmId);
 
                     let porcentajeSuma = sumarAdjacencyListPorId(dataFirms2, firmId);
-                    console.log("porcentajeSuma");
-                    console.log(porcentajeSuma);
 
                     rutPropietario = dataFirms2.rut;
                     propietario2 = dataFirms2.title;
@@ -148,18 +281,67 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
       }
     }
     setFilteredData(selectedData.filter(Boolean));
+    handleOpenModal();
+  }
+
+  const handleExport = async (value) => {
+    let selectedCheckboxes = [];
+    let selectedCheckboxesAll = [];
+    let checkboxes = document.querySelectorAll(".checkbox:checked");
+      selectedCheckboxes = Array.from(checkboxes).filter(
+        (checkbox) => checkbox.checked
+      );
+    if(value === 1){      
+      handleExportStokHolders(selectedCheckboxes);
+    }
+    if(value === 2){
+      handleExportCompaniesFinals(selectedCheckboxes);
+    }
+    if(value === 3){
+      let checkboxesAll = document.querySelectorAll(".checkbox");
+      selectedCheckboxesAll = Array.from(checkboxesAll).filter(
+        (checkbox) => checkbox.checked
+      );
+    handleExportMasive(selectedCheckboxesAll);    
+    }
   };
 
   const handlerBulkImportCompanies = () => {
     handleSelectAllCheckbox();
-    handleExport();
-    handleOpenModal();
+    //1.- Stockholders 2.- Compañias finales 3.- Todos
+    handleExport(3);
   };
 
+  const validateCheck = () => {    
+    const checkboxes = document.querySelectorAll(".checkbox:checked");
+
+    if (checkboxes.length > 0) {
+      return true;
+    } else {
+      // Ningún checkbox está marcado, mostrar un alert
+      SnackbarUtilities.error(
+        "Por favor, elija al menos un elemento."
+      );
+      return false;
+    }
+  }
+
   const handlerBulkImportCompaniesFinals = () => {
-    handleSelectCheckbox();
-    handleExport();
-    handleOpenModal();
+    let validate = validateCheck();
+    if(validate === true){
+      handleSelectCheckbox();
+      //1.- Stockholders 2.- Compañias finales 3.- Todos
+      handleExport(2);
+    }
+  }
+
+  const handlerBulkImportStockholders = () => {
+    let validate = validateCheck();
+    if(validate === true){
+      handleSelectCheckbox();
+      //1.- Stockholders 2.- Compañias finales 3.- Todos
+      handleExport(1);
+    }
   };
   return (
     <div className="flex justify-between w-9/12 items-center mx-auto bg-LightGrayishBlue pt-7 pb-1 sticky top-0 z-30">
@@ -234,11 +416,12 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
               }}
             >
               <div className="flex flex-col gap-5">
-                <p className="text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer">
+                <p className="text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer"
+                  onClick={handlerBulkImportCompaniesFinals} >
                   exportar solo sociedades finales
                 </p>
                 <p className="text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer"
-                  onClick={handlerBulkImportCompaniesFinals} >
+                  onClick={handlerBulkImportStockholders} >
                   exportar solo stockholders
                 </p>
                 <hr className="border-b-2 border-gray-300" />
