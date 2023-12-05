@@ -50,7 +50,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
     });
 
     // Actualizar el estado
-    setSelectAllChecked(!selectAllChecked);
+    // setSelectAllChecked(!selectAllChecked);
   };
 
   const handleOpenModal = () => {
@@ -82,9 +82,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
 
   const handleExportStokHolders = async (selectedCheckboxes) => {
     let selectedData = [];
-    // for (const checkbox of selectedCheckboxes) {
-    //   const firmContainer = checkbox.closest(".flex.justify-between");
-    console.log(selectedCheckboxes);
     for (const checkbox of selectedCheckboxes) {
       const firmContainer = checkbox.closest(".flex.justify-between");
       if (firmContainer) {
@@ -119,8 +116,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
                     let dataFirms2 = await fetchFirmData(firmId);
 
                     let porcentajeSuma = sumarAdjacencyListPorId(dataFirms2, firmId);
-                    console.log("porcentajeSuma");
-                    console.log(porcentajeSuma);
 
                     rutPropietario = dataFirms2.rut;
                     propietario2 = dataFirms2.title;
@@ -149,11 +144,11 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
       }
     }
     setFilteredData(selectedData.filter(Boolean));
+    handleOpenModal();
   }
 
   const handleExportCompaniesFinals = async (selectedCheckboxes) => {
     let selectedData = [];    
-    console.log(selectedCheckboxes);
     for (const checkbox of selectedCheckboxes) {
       // const checkbox = selectedCheckboxes[i];
       const firmContainer = checkbox.closest(".flex.justify-between");
@@ -193,8 +188,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
                     let dataFirms2 = await fetchFirmData(firmId);
 
                     let porcentajeSuma = sumarAdjacencyListPorId(dataFirms2, firmId);
-                    console.log("porcentajeSuma");
-                    console.log(porcentajeSuma);
 
                     rutPropietario = dataFirms2.rut;
                     propietario2 = dataFirms2.title;
@@ -223,30 +216,10 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
       }
     }
     setFilteredData(selectedData.filter(Boolean));
+    handleOpenModal();
   }
 
-  const handleExport = async (value) => {
-    let selectedCheckboxes = [];
-    if(value === 1){
-      const checkboxes = document.querySelectorAll(".checkbox:checked");
-      selectedCheckboxes = Array.from(checkboxes).filter(
-        (checkbox) => checkbox.checked
-      );
-      handleExportStokHolders(selectedCheckboxes);
-    }
-    if(value === 2){
-      const checkboxes = document.querySelectorAll(".checkbox:checked");
-      selectedCheckboxes = Array.from(checkboxes).filter(
-        (checkbox) => checkbox.checked
-      );
-      handleExportCompaniesFinals(selectedCheckboxes);
-    }
-    if(value === 3){
-      const checkboxes = document.querySelectorAll(".checkbox");
-      selectedCheckboxes = Array.from(checkboxes).filter(
-        (checkbox) => checkbox.checked
-      );
-
+  const handleExportMasive = async (selectedCheckboxes) => {
     let selectedData = [];
         
     for (const checkbox of selectedCheckboxes) {
@@ -280,8 +253,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
                     let dataFirms2 = await fetchFirmData(firmId);
 
                     let porcentajeSuma = sumarAdjacencyListPorId(dataFirms2, firmId);
-                    console.log("porcentajeSuma");
-                    console.log(porcentajeSuma);
 
                     rutPropietario = dataFirms2.rut;
                     propietario2 = dataFirms2.title;
@@ -310,6 +281,28 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
       }
     }
     setFilteredData(selectedData.filter(Boolean));
+    handleOpenModal();
+  }
+
+  const handleExport = async (value) => {
+    let selectedCheckboxes = [];
+    let selectedCheckboxesAll = [];
+    let checkboxes = document.querySelectorAll(".checkbox:checked");
+      selectedCheckboxes = Array.from(checkboxes).filter(
+        (checkbox) => checkbox.checked
+      );
+    if(value === 1){      
+      handleExportStokHolders(selectedCheckboxes);
+    }
+    if(value === 2){
+      handleExportCompaniesFinals(selectedCheckboxes);
+    }
+    if(value === 3){
+      let checkboxesAll = document.querySelectorAll(".checkbox");
+      selectedCheckboxesAll = Array.from(checkboxesAll).filter(
+        (checkbox) => checkbox.checked
+      );
+    handleExportMasive(selectedCheckboxesAll);    
     }
   };
 
@@ -317,13 +310,10 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
     handleSelectAllCheckbox();
     //1.- Stockholders 2.- Compañias finales 3.- Todos
     handleExport(3);
-    handleOpenModal();
   };
 
   const validateCheck = () => {    
     const checkboxes = document.querySelectorAll(".checkbox:checked");
-    console.log("checkboxes");
-    console.log(checkboxes);
 
     if (checkboxes.length > 0) {
       return true;
@@ -342,7 +332,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
       handleSelectCheckbox();
       //1.- Stockholders 2.- Compañias finales 3.- Todos
       handleExport(2);
-      handleOpenModal();
     }
   }
 
@@ -352,7 +341,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
       handleSelectCheckbox();
       //1.- Stockholders 2.- Compañias finales 3.- Todos
       handleExport(1);
-      handleOpenModal();
     }
   };
   return (
