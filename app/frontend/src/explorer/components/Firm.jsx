@@ -6,38 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { callFirm } from "@/redux/actions/firms";
 import CustomSVGContainer from "./CustomSVGContainer";
 import createCsvWriter from "csv-writer";
-import * as canvg from "canvg";
 import html2canvas from "html2canvas";
-
-function renderSubLevels(subLevels) {
-  if (!subLevels || subLevels.length === 0) {
-    return null;
-  }
-
-  return (
-    <ul>
-      {subLevels.map((subLevel, index) => (
-        <li key={index}>
-          <div
-            style={{
-              borderBottom: "3px solid #fff",
-              backgroundColor: getFillColor(subLevel.level),
-            }}
-            className="flex items-center gap-5 justify-between px-5 text-xs"
-          >
-            <p>
-              {subLevel.investorIdt} - {subLevel.societyNameh}
-            </p>
-            <p>{subLevel.porcentaje} %</p>
-            <p>{subLevel.rutinv}</p>
-          </div>
-          {/* Renderiza los elementos del siguiente nivel recursivamente */}
-          {renderSubLevels(subLevel.subLevels)}
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 function getFillColor(level) {
   // Define tus colores según el nivel aquí
@@ -57,9 +26,9 @@ function getFillColor(level) {
 function getLevelClassName(level) {
   switch (level) {
     case "1":
-      return "one";
+      return "level_one";
     case "2":
-      return "two";
+      return "level_two";
     case "3":
       return "level_three";
     case "4":
@@ -73,9 +42,7 @@ const translateLevels = (ownersMap, firms, response) => {
   const levelSocietiesInfo = [];
 
   if (ownersMap) {
-    console.log("ownersMap", ownersMap);
     const { levels } = ownersMap;
-    console.log("ownersMap", ownersMap);
 
     for (const levelKey in levels) {
       if (Object.hasOwnProperty.call(levels, levelKey)) {
@@ -123,8 +90,6 @@ const translateLevels = (ownersMap, firms, response) => {
   /************************************************** */
   const { adjacencyList } = ownersMap;
   for (const vertex in adjacencyList) {
-    console.log(`Vertex ${vertex}:`);
-
     // Verificar si el valor asociado a la propiedad es un objeto
     if (
       typeof adjacencyList[vertex] === "object" &&
@@ -140,16 +105,38 @@ const translateLevels = (ownersMap, firms, response) => {
           padre: vertex,
         });
       }
+
+      const nodosUnicos = Array.from(
+        new Set(porcentajes.map(JSON.stringify))
+      ).map(JSON.parse);
+
+      // Construir el árbol a partir de los nodos
+
+      let arbol = construirArbol(nodosUnicos, vertex);
     }
   }
 
   return levelSocietiesInfo;
 };
+
+const construirArbol = (nodos, padre) => {
+  const hijos = nodos
+    .filter((nodo) => nodo.padre === padre)
+    .map((nodo) => {
+      const nodoConHijos = {
+        ...nodo,
+        hijos: construirArbol(nodos, nodo.id, matriz),
+      };
+      matriz.push(nodoConHijos);
+      // Agrega el nodo y sus hijos a la matriz
+      return nodoConHijos;
+    });
+
+  return hijos.length > 0 ? hijos : null;
+};
+
 const findSocietyNameById = (societyId, response) => {
-  console.log("societyIdstodas", societyId);
-  console.log("societyNamestodas", societyNamestodas);
   const index = societyIdstodas.indexOf(societyId);
-  console.log("Nombre de la sociedad:", index);
   return index !== -1 ? societyNamestodas[index] : "Nombre no encontrado";
 };
 
@@ -158,11 +145,12 @@ const societyNamestodas = [];
 const rutsociedad = [];
 const porcentajes = [];
 const idprocen = [];
+const matriz = [];
+
 const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const dispatch = useDispatch();
   const { firmOwnersMap } = useSelector((state) => state);
   const { response } = firmOwnersMap;
-  console.log("response", response);
   let firms = response ? response.firms : [];
 
   const [firmId, setFirmId] = useState(firm?.firmId || "");
@@ -181,8 +169,6 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
 
   useEffect(() => {
     setIsChecked(selectAllChecked);
-    // console.log("selectAllChecked en Firm:", selectAllChecked);
-    //toggleOpen();
   }, [selectAllChecked]);
   if (!firm) {
     return null;
@@ -203,11 +189,95 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
     setIsChecked((prevChecked) => !prevChecked);
   };
 
+  const eliminarDuplicados = (matriz) => {
+    const nodosUnicos = {};
+
+    matriz.forEach((nodo) => {
+      const clave = `${nodo.id}_${nodo.padre}`;
+      if (!nodosUnicos[clave] || nodo.hijos) {
+        nodosUnicos[clave] = nodo;
+      }
+    });
+
+    return Object.values(nodosUnicos);
+  };
+  const imprimirArbol2 = (nodo, ancestros = []) => {
+    const tieneAncestros = ancestros.includes(nodo.padre);
+
+    if (!tieneAncestros) {
+      console.log(`Padre ${nodo.padre} :`);
+    }
+
+    if (nodo.hijos && nodo.hijos.length > 0) {
+      nodo.hijos.forEach((hijo) => {
+        if (!tieneAncestros) {
+          console.log(`  Hijo ${hijo.id}`);
+        }
+        imprimirArbol(hijo, [...ancestros, nodo.padre]);
+      });
+    }
+  };
+
+  const imprimirArbol = (nodo, ancestros = []) => {
+    console.log(`Padre ${nodo.padre} :`);
+
+    if (nodo.hijos && nodo.hijos.length > 0) {
+      nodo.hijos.forEach((hijo) => {
+        console.log(`    Hijo ${hijo.id}`);
+        imprimirArbol(hijo, [...ancestros, nodo.padre]);
+      });
+    }
+  };
+  const imprimirArbol5 = (nodos, nivel) => {
+    console.log(nivel);
+    if (!nodos[nivel]) return null;
+
+    return (
+      <div className={`level_${nivel}`}>
+        {nodos[nivel].map((nodo) => (
+          <div className="investor_level" key={nodo.societyIdt}>
+            <CustomSVGContainer fill="#177E89" />
+            <p className="percentage_level">{nodo.societies.porcentaje}</p>
+            <p>{nodo.societies.societyNameh}</p>
+            {nodo.societies.investorIdt && (
+              // Si hay un inversor, llamamos recursivamente a la función
+              <div className={`level_${nivel + 1}`}>
+                {imprimirArbol5(nodos, nivel + 1)}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
   const handleOpenToggle = () => {
-    //console.log('porcentaje', porcentajes);
+    console.log("societyIdstodas", firm.firmId);
 
     //console.log(`El porcentaje es es: ${padre}`);
     const result = [];
+    console.log(
+      "matriz",
+      Array.from(new Set(matriz.map(JSON.stringify))).map(JSON.parse)
+    );
+    const prueba = Array.from(new Set(matriz.map(JSON.stringify))).map(
+      JSON.parse
+    );
+    const nodosUnicos2 = eliminarDuplicados(prueba);
+    console.log("matriz", nodosUnicos2);
+    nodosUnicos2.forEach((raiz) => imprimirArbol2(raiz));
+
+    // Imprimir el árbol
+    /* const appContainer = document.getElementById('prueba');
+      if (appContainer) {
+        nodosUnicos2.forEach((raiz, index) => {
+          const treeRoot = imprimirArbol2(raiz, index);
+          console.log(treeRoot)
+          if (treeRoot) {
+            appContainer.appendChild(treeRoot);
+          }
+        });
+      }*/
+
     levelSocietiesInfo.forEach((levelInfo, outerIndex) => {
       levelInfo.societies.forEach((societyInfo, innerIndex) => {
         let title = "";
@@ -222,6 +292,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
             societyInfo.investorId,
             porcentajes
           );
+
           societyIdstodas.forEach((elemento, indice) => {
             if (elemento === societyInfo.investorId) {
               title = societyNamestodas[indice];
@@ -274,13 +345,14 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
 
       groupedByLevelAndSocietyIdt[item.level][item.societyIdt].push(item);
     });
-    console.log(groupedByLevelAndSocietyIdt);
+    console.log("groupedByLevelAndSocietyIdt", groupedByLevelAndSocietyIdt);
     setGroupedInfo(groupedByLevelAndSocietyIdt);
+
     const highestLevel = Math.max(
       ...Object.keys(groupedByLevelAndSocietyIdt).map(Number)
     );
     setHighestLevel(highestLevel);
-    console.log(highestLevel);
+    console.log("highestLevel", highestLevel);
     // Imprimir la vista por cada nivel y sociedadIdt
     /*Object.keys(groupedByLevelAndSocietyIdt).forEach((level) => {
   console.log(`Nivel ${level}:`);
@@ -333,6 +405,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
       const title = response.title;
       societyIdstodas.push(response.firmId);
       societyNamestodas.push(response.title);
+
       rutsociedad.push(response.rut);
       console.log("arrey", rutsociedad);
       setLevelSocietiesInfo((prevInfo) =>
@@ -436,7 +509,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                   <p>
                     {item.societies.investorIdt}- {item.societies.societyNameh}
                   </p>
-                  <p>{item.societies.porcentaje}%</p>
+                  <p>{item.societies.porcentaje}</p>
                   <p>{item.societies.rutinv}</p>
                 </div>
                 {item.children &&
@@ -600,7 +673,10 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               transition={{ duration: 0.2 }}
             >
               <div className="w-full flex gap-5">
-                <div className="flex flex-col" style={{ width: "40%" }}>
+                <div
+                  className="flex flex-col gap-10 p-5"
+                  style={{ width: "40%" }}
+                >
                   <div
                     className={`w-full ${
                       showDialog
@@ -609,7 +685,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                     }`}
                     style={{ marginBottom: "10px" }}
                   >
-                    {!showDialog ? (
+                    {/* {!showDialog ? (
                       <div className="flex items-center justify-between">
                         <div
                           onClick={() => setShowDialog((prev) => !prev)}
@@ -688,9 +764,9 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                           </p>
                         </div>
                       </div>
-                    )}
+                    )} */}
 
-                    <select
+                    {/* <select
                       className={`border rounded-md ${
                         showDialog ? "self-end" : ""
                       }`}
@@ -703,8 +779,9 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                       <option value="2">Nivel 2</option>
                       <option value="3">Nivel 3</option>
                       <option value="4">Nivel 4</option>
-                    </select>
+                    </select> */}
                   </div>
+                  <div id="prueba"></div>
                   <div id="organigrama" className="tree_container" ref={divRef}>
                     <div className="flex items-center gap-1">
                       <svg
@@ -740,60 +817,369 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                         />
                       </svg>
                     </div>
-
-                    <div className="level_one">
-                      <div className="investor_level">
-                        <CustomSVGContainer fill="#177E89" />
-                        <p className="percentage_level">45</p>
-                        <p>{"investor_name"}</p>
-                      </div>
-                      <div className="level_two">
-                        <div className="investor_level">
-                          <CustomSVGContainer fill="#db3a34" />
-                          <p className="percentage_level">36</p>
-                          <p>{"investor_name"}</p>
-                        </div>
-                      </div>
-                      <div className="level_two">
-                        <div className="investor_level">
-                          <CustomSVGContainer fill="#db3a34" />
-                          <p className="percentage_level">15</p>
-                          <p>{"investor_name"}</p>
-                        </div>
-                        <div className="level_three">
-                          <div className="investor_level">
-                            <CustomSVGContainer fill="#FFC857" />
-                            <p className="percentage_level">25</p>
-                            <p>{"investor_name"}</p>
+                    {Object.keys(groupedInfo).map(
+                      (level) =>
+                        parseInt(level) === 1 && (
+                          <div key={level}>
+                            {/* Resto del código para el nivel 1 */}
+                            {Object.keys(groupedInfo[level]).map((societyIdt) =>
+                              groupedInfo[level][societyIdt].map(
+                                (item, index) => {
+                                  // Validar si item.societies.investorIdt no es nulo
+                                  if (item.societies.investorIdt !== null) {
+                                    return (
+                                      <div
+                                        key={item.societies.investorIdt}
+                                        className={getLevelClassName(
+                                          level.toString()
+                                        )}
+                                      >
+                                        <div className="investor_level">
+                                          <CustomSVGContainer
+                                            fill={getFillColor(
+                                              level.toString()
+                                            )}
+                                          />
+                                          <p className="percentage_level">
+                                            {item.societies.porcentaje}
+                                          </p>
+                                          <p>{item.societies.societyNameh}</p>
+                                        </div>
+                                        {/* Iteración sobre los subniveles */}
+                                        {parseInt(level) + 1 <
+                                          highestLevel.toString() &&
+                                          groupedInfo[parseInt(level) + 1] &&
+                                          groupedInfo[parseInt(level) + 1][
+                                            item.societies.investorIdt
+                                          ] && (
+                                            <div
+                                              className={getLevelClassName(
+                                                (parseInt(level) + 1).toString()
+                                              )}
+                                            >
+                                              {groupedInfo[parseInt(level) + 1][
+                                                item.societies.investorIdt
+                                              ].map((subItem) => {
+                                                // Validar si subItem.societies.investorIdt no es nulo
+                                                if (
+                                                  subItem.societies
+                                                    .investorIdt !== ""
+                                                ) {
+                                                  return (
+                                                    <div
+                                                      key={
+                                                        subItem.societies
+                                                          .investorIdt
+                                                      }
+                                                    >
+                                                      <div className="investor_level">
+                                                        <CustomSVGContainer
+                                                          fill={getFillColor(
+                                                            (
+                                                              parseInt(level) +
+                                                              1
+                                                            ).toString()
+                                                          )}
+                                                        />
+                                                        <p className="percentage_level">
+                                                          {
+                                                            subItem.societies
+                                                              .porcentaje
+                                                          }
+                                                        </p>
+                                                        <p>
+                                                          {
+                                                            subItem.societies
+                                                              .societyNameh
+                                                          }
+                                                        </p>
+                                                      </div>
+                                                      {/* Iteración sobre los subniveles del siguiente nivel */}
+                                                      {parseInt(level) + 2 <
+                                                        highestLevel.toString() &&
+                                                        groupedInfo[
+                                                          parseInt(level) + 2
+                                                        ] &&
+                                                        groupedInfo[
+                                                          parseInt(level) + 2
+                                                        ][
+                                                          subItem.societies
+                                                            .investorIdt
+                                                        ] && (
+                                                          <div
+                                                            className={getLevelClassName(
+                                                              (
+                                                                parseInt(
+                                                                  level
+                                                                ) + 2
+                                                              ).toString()
+                                                            )}
+                                                          >
+                                                            {groupedInfo[
+                                                              parseInt(level) +
+                                                                2
+                                                            ][
+                                                              subItem.societies
+                                                                .investorIdt
+                                                            ].map(
+                                                              (subSubItem) => {
+                                                                // Validar si subSubItem.societies.investorIdt no es nulo
+                                                                if (
+                                                                  subSubItem
+                                                                    .societies
+                                                                    .investorIdt !==
+                                                                  ""
+                                                                ) {
+                                                                  return (
+                                                                    <div
+                                                                      key={
+                                                                        subSubItem
+                                                                          .societies
+                                                                          .investorIdt
+                                                                      }
+                                                                    >
+                                                                      <div className="investor_level">
+                                                                        <CustomSVGContainer
+                                                                          fill={getFillColor(
+                                                                            (
+                                                                              parseInt(
+                                                                                level
+                                                                              ) +
+                                                                              2
+                                                                            ).toString()
+                                                                          )}
+                                                                        />
+                                                                        <p className="percentage_level">
+                                                                          {
+                                                                            subSubItem
+                                                                              .societies
+                                                                              .porcentaje
+                                                                          }
+                                                                        </p>
+                                                                        <p>
+                                                                          {
+                                                                            subSubItem
+                                                                              .societies
+                                                                              .societyNameh
+                                                                          }
+                                                                        </p>
+                                                                      </div>
+                                                                      {/* Iteración sobre los subniveles del siguiente nivel */}
+                                                                      {parseInt(
+                                                                        level
+                                                                      ) +
+                                                                        3 <
+                                                                        highestLevel.toString() &&
+                                                                        groupedInfo[
+                                                                          parseInt(
+                                                                            level
+                                                                          ) + 3
+                                                                        ] &&
+                                                                        groupedInfo[
+                                                                          parseInt(
+                                                                            level
+                                                                          ) + 3
+                                                                        ][
+                                                                          subSubItem
+                                                                            .societies
+                                                                            .investorIdt
+                                                                        ] && (
+                                                                          <div
+                                                                            className={getLevelClassName(
+                                                                              (
+                                                                                parseInt(
+                                                                                  level
+                                                                                ) +
+                                                                                3
+                                                                              ).toString()
+                                                                            )}
+                                                                          >
+                                                                            {groupedInfo[
+                                                                              parseInt(
+                                                                                level
+                                                                              ) +
+                                                                                3
+                                                                            ][
+                                                                              subSubItem
+                                                                                .societies
+                                                                                .investorIdt
+                                                                            ].map(
+                                                                              (
+                                                                                subSubSubItem
+                                                                              ) => {
+                                                                                // Validar si subSubSubItem.societies.investorIdt no es nulo
+                                                                                if (
+                                                                                  subSubSubItem
+                                                                                    .societies
+                                                                                    .investorIdt !==
+                                                                                  ""
+                                                                                ) {
+                                                                                  return (
+                                                                                    <div
+                                                                                      key={
+                                                                                        subSubSubItem
+                                                                                          .societies
+                                                                                          .investorIdt
+                                                                                      }
+                                                                                    >
+                                                                                      <div className="investor_level">
+                                                                                        <CustomSVGContainer
+                                                                                          fill={getFillColor(
+                                                                                            (
+                                                                                              parseInt(
+                                                                                                level
+                                                                                              ) +
+                                                                                              3
+                                                                                            ).toString()
+                                                                                          )}
+                                                                                        />
+                                                                                        <p className="percentage_level">
+                                                                                          {
+                                                                                            subSubSubItem
+                                                                                              .societies
+                                                                                              .porcentaje
+                                                                                          }
+                                                                                        </p>
+                                                                                        <p>
+                                                                                          {
+                                                                                            subSubSubItem
+                                                                                              .societies
+                                                                                              .societyNameh
+                                                                                          }
+                                                                                        </p>
+                                                                                      </div>
+                                                                                      {/* Iteración sobre los subniveles del siguiente nivel */}
+                                                                                      {parseInt(
+                                                                                        level
+                                                                                      ) +
+                                                                                        4 <
+                                                                                        highestLevel.toString() &&
+                                                                                        groupedInfo[
+                                                                                          parseInt(
+                                                                                            level
+                                                                                          ) +
+                                                                                            4
+                                                                                        ] &&
+                                                                                        groupedInfo[
+                                                                                          parseInt(
+                                                                                            level
+                                                                                          ) +
+                                                                                            4
+                                                                                        ][
+                                                                                          subSubSubItem
+                                                                                            .societies
+                                                                                            .investorIdt
+                                                                                        ] && (
+                                                                                          <div
+                                                                                            className={getLevelClassName(
+                                                                                              (
+                                                                                                parseInt(
+                                                                                                  level
+                                                                                                ) +
+                                                                                                4
+                                                                                              ).toString()
+                                                                                            )}
+                                                                                          >
+                                                                                            {groupedInfo[
+                                                                                              parseInt(
+                                                                                                level
+                                                                                              ) +
+                                                                                                4
+                                                                                            ][
+                                                                                              subSubSubItem
+                                                                                                .societies
+                                                                                                .investorIdt
+                                                                                            ].map(
+                                                                                              (
+                                                                                                subSubSubSubItem
+                                                                                              ) => {
+                                                                                                // Validar si subSubSubSubItem.societies.investorIdt no es nulo
+                                                                                                if (
+                                                                                                  subSubSubSubItem
+                                                                                                    .societies
+                                                                                                    .investorIdt !==
+                                                                                                  null
+                                                                                                ) {
+                                                                                                  return (
+                                                                                                    <div
+                                                                                                      key={
+                                                                                                        subSubSubSubItem
+                                                                                                          .societies
+                                                                                                          .investorIdt
+                                                                                                      }
+                                                                                                    >
+                                                                                                      <div className="investor_level">
+                                                                                                        <CustomSVGContainer
+                                                                                                          fill={getFillColor(
+                                                                                                            (
+                                                                                                              parseInt(
+                                                                                                                level
+                                                                                                              ) +
+                                                                                                              4
+                                                                                                            ).toString()
+                                                                                                          )}
+                                                                                                        />
+                                                                                                        <p className="percentage_level">
+                                                                                                          {
+                                                                                                            subSubSubSubItem
+                                                                                                              .societies
+                                                                                                              .porcentaje
+                                                                                                          }
+                                                                                                        </p>
+                                                                                                        <p>
+                                                                                                          {
+                                                                                                            subSubSubSubItem
+                                                                                                              .societies
+                                                                                                              .societyNameh
+                                                                                                          }
+                                                                                                        </p>
+                                                                                                      </div>
+                                                                                                      {/* Puedes seguir anidando más niveles si es necesario */}
+                                                                                                    </div>
+                                                                                                  );
+                                                                                                }
+                                                                                                return null;
+                                                                                              }
+                                                                                            )}
+                                                                                          </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                  );
+                                                                                }
+                                                                                return null;
+                                                                              }
+                                                                            )}
+                                                                          </div>
+                                                                        )}
+                                                                    </div>
+                                                                  );
+                                                                }
+                                                                return null;
+                                                              }
+                                                            )}
+                                                          </div>
+                                                        )}
+                                                    </div>
+                                                  );
+                                                }
+                                                return null;
+                                              })}
+                                            </div>
+                                          )}
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                }
+                              )
+                            )}
                           </div>
-                          <div className="last_level">
-                            <div className="investor_level">
-                              <CustomSVGContainer fill="#FFC857" />
-                              <p className="percentage_level">10</p>
-                              <p>{"investor_name"}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="level_one">
-                      <div className="investor_level">
-                        <CustomSVGContainer fill="#177E89" />
-                        <p className="percentage_level">{5}</p>
-                        <p>{"investor_name"}</p>
-                      </div>
-                    </div>
-                    <div className="level_one">
-                      <div className="investor_level">
-                        <CustomSVGContainer fill="#177E89" />
-                        <p className="percentage_level">{2}</p>
-                        <p>{"investor_name"}</p>
-                      </div>
-                    </div>
+                        )
+                    )}
                   </div>
                   <button
                     onClick={capturarDiv}
-                    className="border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white flex items-center gap-1 w-2/5"
+                    className="border-2 px-3 py-1 rounded-md hover:bg-zinc-600 hover:text-white flex items-center gap-1"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -810,7 +1196,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                         stroke-linejoin="round"
                       />
                     </svg>
-                    Descargar
+                    Descargar organigrama
                   </button>
                 </div>
                 <div
@@ -818,7 +1204,6 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                   style={{
                     width: "50%",
                     minHeight: "300px",
-                    padding: "5px",
                   }}
                 >
                   <h3 style={{ textAlign: "center" }}>{firm.name}</h3>
@@ -857,47 +1242,40 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                             {Object.keys(groupedInfo[level]).map(
                               (societyIdt) => (
                                 <div key={societyIdt}>
-                                  <div
-                                    style={{
-                                      borderBottom: "3px solid #fff",
-                                    }}
-                                    className="flex items-center gap-5 justify-between px-5 text-xs"
-                                  >
-                                    <p>{societyIdt}</p>
-                                    <p>
-                                      {
-                                        groupedInfo[level][societyIdt][0]
-                                          .societyNamet
-                                      }
-                                    </p>
-                                    <p>
-                                      {
-                                        groupedInfo[level][societyIdt][0]
-                                          .rutsociedadt
-                                      }
-                                    </p>
-                                  </div>
-
+                                  <p>
+                                    {/*  Sociedad ID: {societyIdt} - Nombres:*/}
+                                    Sociedad:
+                                    {
+                                      groupedInfo[level][societyIdt][0]
+                                        .societyNamet
+                                    }
+                                    -- Rut:
+                                    {
+                                      groupedInfo[level][societyIdt][0]
+                                        .rutsociedadt
+                                    }
+                                  </p>
                                   <ul>
                                     {groupedInfo[level][societyIdt].map(
-                                      (item, index) => (
-                                        <li key={index}>
-                                          <div
-                                            style={{
-                                              borderBottom: "3px solid #fff",
-                                            }}
-                                            className="flex items-center gap-5 justify-between px-5 text-xs"
-                                          >
-                                            <p>{item.societies.societyNameh}</p>
+                                      (item, index) =>
+                                        item.societies.investorIdt !== "" && (
+                                          <li key={index}>
+                                            <div
+                                              style={{
+                                                borderBottom: "3px solid #fff",
+                                              }}
+                                              className="flex items-center gap-5 justify-between px-5 text-xs"
+                                            >
+                                              <p>
+                                                {item.societies.investorIdt}
+                                                {item.societies.societyNameh}
+                                              </p>
 
-                                            <p>
-                                              {item?.societies?.porcentaje ||
-                                                item.societies.porcentaje + "%"}
-                                            </p>
-                                            <p>{item.societies.rutinv}</p>
-                                          </div>
-                                        </li>
-                                      )
+                                              <p>{item.societies.porcentaje}</p>
+                                              <p>{item.societies.rutinv}</p>
+                                            </div>
+                                          </li>
+                                        )
                                     )}
                                   </ul>
                                 </div>
@@ -916,24 +1294,23 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                           onChange={handleCheckbox}
                           className="checkbox"
                         />
-
-                        <p>Shareholders</p>
-                        <svg
-                          width="10"
-                          height="6"
-                          viewBox="0 0 10 6"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M8.75 1.125L5 4.875L1.25 1.125"
-                            stroke="#787878"
-                            stroke-width="1.2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
                       </div>
+                      <p>Shareholders</p>
+                      <svg
+                        width="10"
+                        height="6"
+                        viewBox="0 0 10 6"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8.75 1.125L5 4.875L1.25 1.125"
+                          stroke="#787878"
+                          stroke-width="1.2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
                     </div>
                     {Object.keys(groupedInfo).map((level) => (
                       <div key={level}>
@@ -943,45 +1320,40 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                             {Object.keys(groupedInfo[level]).map(
                               (societyIdt) => (
                                 <div key={societyIdt}>
-                                  <div
-                                    style={{
-                                      borderBottom: "3px solid #fff",
-                                    }}
-                                    className="flex items-center gap-5 justify-between px-5 text-xs"
-                                  >
-                                    <p> {societyIdt}</p>
-                                    <p>
-                                      {
-                                        groupedInfo[level][societyIdt][0]
-                                          .societyNamet
-                                      }
-                                    </p>
-                                    <p>
-                                      {
-                                        groupedInfo[level][societyIdt][0]
-                                          .rutsociedadt
-                                      }
-                                    </p>
-                                  </div>
+                                  <p>
+                                    {/*  Sociedad ID: {societyIdt} - Nombres:*/}
+                                    Sociedad:
+                                    {
+                                      groupedInfo[level][societyIdt][0]
+                                        .societyNamet
+                                    }
+                                    - Rut:
+                                    {
+                                      groupedInfo[level][societyIdt][0]
+                                        .rutsociedadt
+                                    }
+                                  </p>
                                   <ul>
                                     {groupedInfo[level][societyIdt].map(
-                                      (item, index) => (
-                                        <li key={index}>
-                                          <div
-                                            style={{
-                                              borderBottom: "3px solid #fff",
-                                            }}
-                                            className="flex items-center gap-5 justify-between px-5 text-xs"
-                                          >
-                                            <p>{item.societies.societyNameh}</p>
+                                      (item, index) =>
+                                        item.societies.investorIdt !== "" && (
+                                          <li key={index}>
+                                            <div
+                                              style={{
+                                                borderBottom: "3px solid #fff",
+                                              }}
+                                              className="flex items-center gap-5 justify-between px-5 text-xs"
+                                            >
+                                              <p>
+                                                {item.societies.investorIdt}-
+                                                {item.societies.societyNameh}
+                                              </p>
 
-                                            <p>
-                                              {item.societies.porcentaje + "%"}
-                                            </p>
-                                            <p>{item.societies.rutinv}</p>
-                                          </div>
-                                        </li>
-                                      )
+                                              <p>{item.societies.porcentaje}</p>
+                                              <p>{item.societies.rutinv}</p>
+                                            </div>
+                                          </li>
+                                        )
                                     )}
                                   </ul>
                                 </div>
