@@ -237,7 +237,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
         {nodos[nivel].map((nodo) => (
           <div className="investor_level" key={nodo.societyIdt}>
             <CustomSVGContainer fill="#177E89" />
-            <p className="percentage_level">{nodo.societies.porcentaje}</p>
+            <p className="percentage_level">{nodo.societies.porcentaje}%</p>
             <p>{nodo.societies.societyNameh}</p>
             {nodo.societies.investorIdt && (
               // Si hay un inversor, llamamos recursivamente a la función
@@ -674,18 +674,10 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
             >
               <div className="w-full flex gap-5">
                 <div
-                  className="flex flex-col gap-10 p-5"
-                  style={{ width: "40%" }}
+                  className="flex flex-col gap-10 "
+                  style={{ width: "50%", justifyContent: "space-between" }}
                 >
-                  <div
-                    className={`w-full ${
-                      showDialog
-                        ? "flex flex-col gap-5 "
-                        : "flex justify-between gap-5 "
-                    }`}
-                    style={{ marginBottom: "10px" }}
-                  >
-                    {/* {!showDialog ? (
+                  {/* {!showDialog ? (
                       <div className="flex items-center justify-between">
                         <div
                           onClick={() => setShowDialog((prev) => !prev)}
@@ -766,7 +758,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                       </div>
                     )} */}
 
-                    {/* <select
+                  {/* <select
                       className={`border rounded-md ${
                         showDialog ? "self-end" : ""
                       }`}
@@ -780,7 +772,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                       <option value="3">Nivel 3</option>
                       <option value="4">Nivel 4</option>
                     </select> */}
-                  </div>
+
                   <div id="prueba"></div>
                   <div id="organigrama" className="tree_container" ref={divRef}>
                     <div className="flex items-center gap-1">
@@ -841,7 +833,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                             )}
                                           />
                                           <p className="percentage_level">
-                                            {item.societies.porcentaje}
+                                            {item.societies.porcentaje}%
                                           </p>
                                           <p>{item.societies.societyNameh}</p>
                                         </div>
@@ -886,6 +878,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                                             subItem.societies
                                                               .porcentaje
                                                           }
+                                                          %
                                                         </p>
                                                         <p>
                                                           {
@@ -955,6 +948,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                                                               .societies
                                                                               .porcentaje
                                                                           }
+                                                                          %
                                                                         </p>
                                                                         <p>
                                                                           {
@@ -1039,6 +1033,8 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                                                                               .societies
                                                                                               .porcentaje
                                                                                           }
+
+                                                                                          %
                                                                                         </p>
                                                                                         <p>
                                                                                           {
@@ -1125,6 +1121,8 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                                                                                               .societies
                                                                                                               .porcentaje
                                                                                                           }
+
+                                                                                                          %
                                                                                                         </p>
                                                                                                         <p>
                                                                                                           {
@@ -1180,6 +1178,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                   <button
                     onClick={capturarDiv}
                     className="border-2 px-3 py-1 rounded-md hover:bg-zinc-600 hover:text-white flex items-center gap-1"
+                    style={{ width: "45%" }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -1200,37 +1199,18 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                   </button>
                 </div>
                 <div
-                  className="flex flex-col gap-10"
+                  className="flex flex-col"
                   style={{
-                    width: "50%",
+                    width: "40%",
                     minHeight: "300px",
                   }}
                 >
-                  <h3 style={{ textAlign: "center" }}>{firm.name}</h3>
+                  <h3 className="font-bold" style={{ textAlign: "center" }}>
+                    {firm.name}
+                  </h3>
                   <div className="flex flex-col">
                     <div className="flex justify-start items-center gap-1">
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={handleCheckbox}
-                        className="checkbox"
-                      />
-                      <p>Sociedades Finales</p>
-                      <svg
-                        width="10"
-                        height="6"
-                        viewBox="0 0 10 6"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8.75 1.125L5 4.875L1.25 1.125"
-                          stroke="#787878"
-                          stroke-width="1.2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
+                      <p className="font-semibold">Sociedades Finales</p>
                     </div>
                     {/* Renderiza la información agrupada en el HTML */}
 
@@ -1271,7 +1251,9 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                                 {item.societies.societyNameh}
                                               </p>
 
-                                              <p>{item.societies.porcentaje}</p>
+                                              <p>
+                                                {item.societies.porcentaje}%
+                                              </p>
                                               <p>{item.societies.rutinv}</p>
                                             </div>
                                           </li>
@@ -1288,29 +1270,8 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
 
                     <div className="flex flex-col">
                       <div className="flex justify-start items-center gap-1 ">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={handleCheckbox}
-                          className="checkbox"
-                        />
+                        <p className="font-semibold">Shareholders</p>
                       </div>
-                      <p>Shareholders</p>
-                      <svg
-                        width="10"
-                        height="6"
-                        viewBox="0 0 10 6"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8.75 1.125L5 4.875L1.25 1.125"
-                          stroke="#787878"
-                          stroke-width="1.2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
                     </div>
                     {Object.keys(groupedInfo).map((level) => (
                       <div key={level}>
