@@ -21,9 +21,9 @@ const Modal = () => {
   const handleOnSuccess = () => {
     SnackbarUtilities.success("Nueva versión creada con éxito");
   };
-  const handleOnFailure = () => {
+  const handleOnFailure = (error) => {
     SnackbarUtilities.error(
-      "No se pudo crear una nueva versión, intente de nuevo."
+      "No se pudo crear una nueva versión, intente de nuevo. " + error.response.data.errors
     );
   };
   const handleSaveNewVersion = () => {

@@ -18,7 +18,7 @@ class Api::V1::VersionsController < ApplicationController
     if version
       render json: version, serializer: VersionSerializer, status: :created
     else
-      render json: { errors: service.errors }, status: :unprocessable_entity
+      render json: { errors: service.errors.join(', ') }, status: :unprocessable_entity
     end
   end
 

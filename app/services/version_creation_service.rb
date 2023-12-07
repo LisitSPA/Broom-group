@@ -25,6 +25,7 @@ class VersionCreationService
     @version
   rescue => e
     @errors << e.message
+    @version = nil
   end
 
   private
@@ -39,6 +40,8 @@ class VersionCreationService
       author_id: @version_data[:authorId],
       matrix_id: @version_data[:matrixId],
     )
+  rescue StandardError => e
+    raise "Error al crear versión: #{e.message}"
   end
 
   def create_firms!
@@ -47,6 +50,8 @@ class VersionCreationService
         firm_profile_id: firm_profile_id,
         version_id: @version.id,
       )
+    rescue StandardError => e
+      raise "Error al crear firms: #{e.message}"
     end
   end
 
@@ -68,6 +73,8 @@ class VersionCreationService
         subsidiary_id: subsidiary&.id,
         percentage: ownership[:percentage],
       )
+    rescue StandardError => e
+      raise "Error al crear ownerships: #{e.message}"
     end
   end
 end
