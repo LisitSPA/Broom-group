@@ -419,8 +419,8 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
       );
 
       // Translate levels once the response is available
-      const info = translateLevels(response.ownersMap, firms, response);
-      setLevelSocietiesInfo(info);
+      // const info = translateLevels(response.ownersMap, firms, response);
+      // setLevelSocietiesInfo(info);
     }
   }, [response, firmId, dispatch, firms]);
 
