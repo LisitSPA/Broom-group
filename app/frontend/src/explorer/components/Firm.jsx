@@ -98,7 +98,6 @@ const translateLevels = (ownersMap, firms, response) => {
       // Iterar sobre las propiedades del objeto interno
       for (const neighbor in adjacencyList[vertex]) {
         const percentage = adjacencyList[vertex][neighbor];
-        console.log(`  Edge to ${neighbor}: ${percentage}%`);
         porcentajes.push({
           id: neighbor,
           porcentaje: percentage,
@@ -219,17 +218,13 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   };
 
   const imprimirArbol = (nodo, ancestros = []) => {
-    console.log(`Padre ${nodo.padre} :`);
-
     if (nodo.hijos && nodo.hijos.length > 0) {
       nodo.hijos.forEach((hijo) => {
-        console.log(`    Hijo ${hijo.id}`);
         imprimirArbol(hijo, [...ancestros, nodo.padre]);
       });
     }
   };
   const imprimirArbol5 = (nodos, nivel) => {
-    console.log(nivel);
     if (!nodos[nivel]) return null;
 
     return (
@@ -251,19 +246,13 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
     );
   };
   const handleOpenToggle = () => {
-    console.log("societyIdstodas", firm.firmId);
-
     //console.log(`El porcentaje es es: ${padre}`);
     const result = [];
-    console.log(
-      "matriz",
-      Array.from(new Set(matriz.map(JSON.stringify))).map(JSON.parse)
-    );
+
     const prueba = Array.from(new Set(matriz.map(JSON.stringify))).map(
       JSON.parse
     );
     const nodosUnicos2 = eliminarDuplicados(prueba);
-    console.log("matriz", nodosUnicos2);
     nodosUnicos2.forEach((raiz) => imprimirArbol2(raiz));
 
     // Imprimir el árbol
@@ -304,8 +293,6 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
           if (elemento == societyInfo.societyId) {
             title2 = societyNamestodas[indice];
             rut = rutsociedad[indice];
-
-            console.log("paso");
           }
         });
 
@@ -326,8 +313,6 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
       });
     });
 
-    console.log("result", result);
-
     // Agrupar por nivel
     const groupedByLevel = {};
 
@@ -345,14 +330,12 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
 
       groupedByLevelAndSocietyIdt[item.level][item.societyIdt].push(item);
     });
-    console.log("groupedByLevelAndSocietyIdt", groupedByLevelAndSocietyIdt);
     setGroupedInfo(groupedByLevelAndSocietyIdt);
 
     const highestLevel = Math.max(
       ...Object.keys(groupedByLevelAndSocietyIdt).map(Number)
     );
     setHighestLevel(highestLevel);
-    console.log("highestLevel", highestLevel);
     // Imprimir la vista por cada nivel y sociedadIdt
     /*Object.keys(groupedByLevelAndSocietyIdt).forEach((level) => {
   console.log(`Nivel ${level}:`);
@@ -407,7 +390,6 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
       societyNamestodas.push(response.title);
 
       rutsociedad.push(response.rut);
-      console.log("arrey", rutsociedad);
       setLevelSocietiesInfo((prevInfo) =>
         prevInfo.map((levelInfo) => ({
           ...levelInfo,
