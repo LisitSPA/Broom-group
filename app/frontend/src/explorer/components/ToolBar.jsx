@@ -6,12 +6,18 @@ import { openModal } from "@/redux/actions/modal";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { SnackbarUtilities } from "@/src/helpers/snackbar-manager";
+import { useSelector } from "react-redux";
 
 const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [levels, setLevels] = useState([]);
+  const reduxState = useSelector((state) => state);
+  let { firms } = reduxState.actualVersion.response;
+  console.log("firms", firms);
+
   const numberOfCompanies =
     filteredData && filteredData.length > 0
       ? `(${filteredData.length} sociedades)`
@@ -366,6 +372,22 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
       handleExport(1);
     }
   };
+
+  // document
+  //   .getElementById("filtroNiveles")
+  //   .addEventListener("change", function () {
+  //     const nivelSeleccionado = parseInt(this.value);
+
+  //     if (nivelSeleccionado) {
+  //       const sociedadesFiltradas = sociedades.filter(
+  //         (sociedad) => sociedad.niveles === nivelSeleccionado
+  //       );
+  //       console.log(sociedadesFiltradas);
+  //       // Aquí puedes hacer lo que quieras con el array filtrado, como mostrarlo en la interfaz
+  //     } else {
+  //       console.log("Selecciona un nivel para filtrar.");
+  //     }
+  //   });
   return (
     <div className="flex justify-between w-9/12 items-center mx-auto bg-LightGrayishBlue pt-7 pb-1 sticky top-0 z-30">
       <div className="flex h-8 w-1/2 gap-3">
@@ -395,7 +417,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
           </div>
         </div>
       </div>
-      <select className="border rounded-md">
+      <select id="filtroNiveles" className="border rounded-md">
         <option value="" disabled selected>
           filtrar por nivel
         </option>
