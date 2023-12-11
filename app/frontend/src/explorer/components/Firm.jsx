@@ -509,7 +509,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                   <p>
                     {item.societies.investorIdt}- {item.societies.societyNameh}
                   </p>
-                  <p>{item.societies.porcentaje}</p>
+                  <p>{item.societies.porcentaje}%</p>
                   <p>{item.societies.rutinv}</p>
                 </div>
                 {item.children &&
@@ -672,107 +672,11 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="w-full flex gap-5">
+              <div className="w-full flex gap-5 p-5 items-center">
                 <div
                   className="flex flex-col gap-10 "
                   style={{ width: "50%", justifyContent: "space-between" }}
                 >
-                  {/* {!showDialog ? (
-                      <div className="flex items-center justify-between">
-                        <div
-                          onClick={() => setShowDialog((prev) => !prev)}
-                          className="bg-gray-800 text-white"
-                          style={{
-                            borderRadius: "5px",
-                            borderBottomLeftRadius: "0px",
-                            padding: "2px 5px",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <svg
-                            width="12"
-                            height="14"
-                            viewBox="0 0 12 14"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M8.028 12.642L7.12267 9.68333M7.12267 9.68333L5.44933 10.9813L5.82867 5.45708L9.31333 10.0753L7.12267 9.68333ZM6 1.3125V2.625M9.88933 2.72183L8.82867 3.64992M11.5 6.125H10M3.17133 8.60008L2.11133 9.52758M2 6.125H0.5M3.17133 3.64992L2.11133 2.72242"
-                              stroke="#F8F9FA"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                          <p style={{ fontSize: "11px", marginLeft: "1px" }}>
-                            ver participación en sociedades
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="border-dashed border-2 border-blue-400 bg-blue-100 p-2 flex flex-col">
-                        <button
-                          onClick={toggleDialog}
-                          className="text-gray-500 self-end"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 14 14"
-                            fill="none"
-                          >
-                            <path
-                              d="M3.5 10.5L10.5 3.5M3.5 3.5L10.5 10.5"
-                              stroke="#03045E"
-                              stroke-opacity="0.270588"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </button>
-                        <p className="text-black font-manrope text-base font-light">
-                          Participación en estas sociedades:
-                        </p>
-                        <div className="flex items-center gap-5 p-4">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="9"
-                            height="9"
-                            viewBox="0 0 9 9"
-                            fill="none"
-                          >
-                            <circle cx="4.5" cy="4.5" r="4.5" fill="#00B4D8" />
-                          </svg>
-                          <div class="rounded-md bg-white p-1">
-                            <p className="text-blue-800 text-center text-xs font-medium">
-                              10%
-                            </p>
-                          </div>
-                          <p className="text-black text-sm">
-                            Nombre de la Sociedad
-                          </p>
-                        </div>
-                      </div>
-                    )} */}
-
-                  {/* <select
-                      className={`border rounded-md ${
-                        showDialog ? "self-end" : ""
-                      }`}
-                      style={{ fontSize: "11px" }}
-                    >
-                      <option value="" disabled selected>
-                        filtrar por nivel
-                      </option>
-                      <option value="1">Nivel 1</option>
-                      <option value="2">Nivel 2</option>
-                      <option value="3">Nivel 3</option>
-                      <option value="4">Nivel 4</option>
-                    </select> */}
-
                   <div id="prueba"></div>
                   <div id="organigrama" className="tree_container" ref={divRef}>
                     <div className="flex items-center gap-1">
@@ -1205,7 +1109,10 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                     minHeight: "300px",
                   }}
                 >
-                  <h3 className="font-bold" style={{ textAlign: "center" }}>
+                  <h3
+                    className="font-bold"
+                    style={{ textAlign: "center", marginBottom: "10px" }}
+                  >
                     {firm.name}
                   </h3>
                   <div className="flex flex-col">
@@ -1218,23 +1125,30 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                       <div key={level}>
                         {level === highestLevel.toString() && (
                           <div>
-                            <p>Nivel {level}:</p>
+                            {/* <p>Nivel {level}</p> */}
                             {Object.keys(groupedInfo[level]).map(
                               (societyIdt) => (
                                 <div key={societyIdt}>
-                                  <p>
-                                    {/*  Sociedad ID: {societyIdt} - Nombres:*/}
-                                    Sociedad:
-                                    {
-                                      groupedInfo[level][societyIdt][0]
-                                        .societyNamet
-                                    }
-                                    -- Rut:
-                                    {
-                                      groupedInfo[level][societyIdt][0]
-                                        .rutsociedadt
-                                    }
-                                  </p>
+                                  <div
+                                    style={{
+                                      borderBottom: "3px solid #fff",
+                                    }}
+                                    className="flex items-center gap-5 justify-between text-xs"
+                                  >
+                                    <p>
+                                      {
+                                        groupedInfo[level][societyIdt][0]
+                                          .societyNamet
+                                      }
+                                    </p>
+                                    <p>
+                                      {
+                                        groupedInfo[level][societyIdt][0]
+                                          .rutsociedadt
+                                      }
+                                    </p>
+                                  </div>
+
                                   <ul>
                                     {groupedInfo[level][societyIdt].map(
                                       (item, index) =>
@@ -1244,7 +1158,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                               style={{
                                                 borderBottom: "3px solid #fff",
                                               }}
-                                              className="flex items-center gap-5 justify-between px-5 text-xs"
+                                              className="flex items-center gap-5 justify-between  text-xs"
                                             >
                                               <p>
                                                 {item.societies.investorIdt}
@@ -1268,7 +1182,10 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                       </div>
                     ))}
 
-                    <div className="flex flex-col">
+                    <div
+                      className="flex flex-col"
+                      style={{ marginTop: "10px" }}
+                    >
                       <div className="flex justify-start items-center gap-1 ">
                         <p className="font-semibold">Shareholders</p>
                       </div>
@@ -1281,9 +1198,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                             {Object.keys(groupedInfo[level]).map(
                               (societyIdt) => (
                                 <div key={societyIdt}>
-                                  <p>
-                                    {/*  Sociedad ID: {societyIdt} - Nombres:*/}
-                                    Sociedad:
+                                  {/* <p>
                                     {
                                       groupedInfo[level][societyIdt][0]
                                         .societyNamet
@@ -1293,7 +1208,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                       groupedInfo[level][societyIdt][0]
                                         .rutsociedadt
                                     }
-                                  </p>
+                                  </p> */}
                                   <ul>
                                     {groupedInfo[level][societyIdt].map(
                                       (item, index) =>
@@ -1303,14 +1218,16 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                                               style={{
                                                 borderBottom: "3px solid #fff",
                                               }}
-                                              className="flex items-center gap-5 justify-between px-5 text-xs"
+                                              className="flex items-center gap-5 justify-between  text-xs"
                                             >
                                               <p>
                                                 {item.societies.investorIdt}-
                                                 {item.societies.societyNameh}
                                               </p>
 
-                                              <p>{item.societies.porcentaje}</p>
+                                              <p>
+                                                {item.societies.porcentaje}%
+                                              </p>
                                               <p>{item.societies.rutinv}</p>
                                             </div>
                                           </li>

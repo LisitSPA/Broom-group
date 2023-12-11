@@ -134,6 +134,7 @@
   gap: 5px;
   align-items: center;
   padding: 4px 0px;
+  min-height: 40px;
 }
 .level_three {
   border-left: 2px solid #ffc857;
