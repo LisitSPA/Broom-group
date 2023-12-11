@@ -11,7 +11,6 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
-  const [selectBulk, setSlectBulk] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const numberOfCompanies =
     filteredData && filteredData.length > 0
@@ -29,19 +28,23 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
     setSearchTerm(searchTermValue);
   };
 
-  const handleSelectAllCheckbox = () => {
+  const handleSelectAllCheckbox = (origin) => {
     // Obtener todos los checkboxes con la clase 'checkbox'
     const checkboxes = document.querySelectorAll(".checkbox");
     // Iterar sobre cada checkbox y activarlo
     checkboxes.forEach((checkbox) => {
-      checkbox.checked = !selectAllChecked;
+      // checkbox.checked = !selectAllChecked;
+      // FIXED: Se condiciona deacuerdo a su origen para que no altere el estado
+        checkbox.checked = origin === 'fc' ? true : !selectAllChecked;
     });
 
     // Actualizar el estado
-    setSelectAllChecked(!selectAllChecked);
+      // setSelectAllChecked(!selectAllChecked);
+      // FIXED: Se condiciona deacuerdo a su origen para que no altere el estado
+      setSelectAllChecked(origin === 'fc' ? true : !selectAllChecked);
   };
 
-  const handleSelectCheckbox = () => {
+  const handleSelectCheckbox = (origin) => {
     // Obtener todos los checkboxes con la clase 'checkbox'
     const checkboxes = document.querySelectorAll(".checkbox:checked");
     // Iterar sobre cada checkbox y activarlo
@@ -51,6 +54,11 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
 
     // Actualizar el estado
     // setSelectAllChecked(!selectAllChecked);
+  };
+
+  // LOADING: Función para abrir el modal de carga
+  const handleOpenLoading = () => {
+    dispatch(openModal("modalLoading"));
   };
 
   const handleOpenModal = () => {
@@ -82,6 +90,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
 
   const handleExportStokHolders = async (selectedCheckboxes) => {
     let selectedData = [];
+    handleOpenLoading(); 
     for (const checkbox of selectedCheckboxes) {
       const firmContainer = checkbox.closest(".flex.justify-between");
       if (firmContainer) {
@@ -148,7 +157,9 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   }
 
   const handleExportCompaniesFinals = async (selectedCheckboxes) => {
-    let selectedData = [];    
+    let selectedData = [];
+    // LOADING: Abrir el modal de carga
+    handleOpenLoading(); 
     for (const checkbox of selectedCheckboxes) {
       // const checkbox = selectedCheckboxes[i];
       const firmContainer = checkbox.closest(".flex.justify-between");
@@ -221,7 +232,8 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
 
   const handleExportMasive = async (selectedCheckboxes) => {
     let selectedData = [];
-        
+    // LOADING: Abrir el modal de carga
+    handleOpenLoading();
     for (const checkbox of selectedCheckboxes) {
       const firmContainer = checkbox.closest(".flex.justify-between");
       if (firmContainer) {
@@ -307,7 +319,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   };
 
   const handlerBulkImportCompanies = () => {
-    handleSelectAllCheckbox();
+    handleSelectAllCheckbox('fc');
     //1.- Stockholders 2.- Compañias finales 3.- Todos
     handleExport(3);
   };
@@ -329,7 +341,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   const handlerBulkImportCompaniesFinals = () => {
     let validate = validateCheck();
     if(validate === true){
-      handleSelectCheckbox();
+      // handleSelectCheckbox();
       //1.- Stockholders 2.- Compañias finales 3.- Todos
       handleExport(2);
     }
@@ -338,7 +350,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
   const handlerBulkImportStockholders = () => {
     let validate = validateCheck();
     if(validate === true){
-      handleSelectCheckbox();
+      // handleSelectCheckbox();
       //1.- Stockholders 2.- Compañias finales 3.- Todos
       handleExport(1);
     }
@@ -364,7 +376,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
             <input
               type="checkbox"
               checked={selectAllChecked}
-              onChange={handleSelectAllCheckbox}
+              onChange={() => handleSelectAllCheckbox('cb')}
             />
             <label className="select-none text-gray-700" htmlFor="select_all">
               seleccionar todos los resultados
@@ -376,7 +388,7 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
       <div className="flex justify-between items-center  h-8">
         <button
           className="flex justify-between bg-white items-center h-full gap-2 border rounded-md text-sm text-Turquoise px-5 font-medium"
-          onClick={handleOpenModal}
+          // onClick={handleOpenModal}
         >
           {buttonText}
         </button>
