@@ -5,6 +5,7 @@ import ToolBar from "./components/ToolBar";
 import FirmContainer from "./components/FirmContainer";
 import { useSelector } from "react-redux";
 import { ModalDownload } from "./components/ModalDownload";
+import { ModalLoading } from "./components/ModalLoading";
 
 const Explorer = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,6 +27,10 @@ const Explorer = () => {
           <FirmContainer searchTerm={searchTerm} />
         </div>
       </div>
+      {/* Se agrego un condicional para mostrar el modal de loading */}
+      {typeModal === "modalLoading" && (
+        <ModalLoading />
+      )}
       {typeModal === "modalDownloadExplorer" && (
         <ModalDownload data={filteredData} />
       )}
