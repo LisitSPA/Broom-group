@@ -6,17 +6,17 @@ import { openModal } from "@/redux/actions/modal";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { SnackbarUtilities } from "@/src/helpers/snackbar-manager";
-import { useSelector } from "react-redux";
 
-const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
+const ToolBar = ({
+  onSearchTermChange,
+  setFilteredData,
+  filteredData,
+  setLevel,
+}) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [levels, setLevels] = useState([]);
-  const reduxState = useSelector((state) => state);
-  let { firms } = reduxState.actualVersion.response;
-  console.log("firms", firms);
 
   const numberOfCompanies =
     filteredData && filteredData.length > 0
@@ -118,7 +118,8 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
         let nivel = "";
         let sapPropietario = "";
 
-        if (dataFirms.ownersMap && dataFirms.ownersMap.levels) {
+        if (dataFirms?.ownersMap && dataFirms?.ownersMap.levels) {
+          console.log("entre");
           const levelsArray = Object.keys(dataFirms.ownersMap.levels);
 
           // Iterar a través de los niveles
@@ -417,9 +418,13 @@ const ToolBar = ({ onSearchTermChange, setFilteredData, filteredData }) => {
           </div>
         </div>
       </div>
-      <select id="filtroNiveles" className="border rounded-md">
-        <option value="" disabled selected>
-          filtrar por nivel
+      <select
+        id="filtroNiveles"
+        className="border bg-white rounded-md text-sm text-Turquoise px-5 py-1 font-medium outline-none "
+        onChange={(e) => setLevel(e?.target.value)}
+      >
+        <option value="" selected>
+          Todos los niveles
         </option>
         <option value="1">Nivel 1</option>
         <option value="2">Nivel 2</option>

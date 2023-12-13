@@ -1,18 +1,17 @@
 import React, { useEffect } from "react";
 import Firm from "./Firm";
-import { useSelector, useDispatch } from "react-redux";
-import { callFirm } from "@/redux/actions/firms";
+import { useSelector } from "react-redux";
 
-const FirmContainer = ({ searchTerm }) => {
-  const dispatch = useDispatch();
+const FirmContainer = ({ searchTerm, level }) => {
   const reduxState = useSelector((state) => state);
   let { firms } = reduxState.actualVersion.response;
-  // useEffect(() => {
-  //   // Llamar a callFirm para cada firmId
-  //   firms.forEach((firm) => {
-  //     dispatch(callFirm(firm.firmId));
-  //   });
-  // }, [dispatch, firms]);
+  const { firmOwnersMap } = useSelector((state) => state);
+  const { response } = firmOwnersMap;
+
+  useEffect(() => {
+    console.log("level", level);
+    console.log("response", response.ownersMap);
+  }, [level]);
 
   const filteredFirms = firms.filter((firm) => {
     if (!searchTerm || searchTerm.trim() === "") {

@@ -625,7 +625,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               <div className="font-light text-lg">
                 {getNumberOfPart(firmStructure, firm.firmId)}
               </div>
-              <div className="text-sm">Participiación</div>
+              <div className="text-sm">Participación</div>
             </div>
             <div className="flex flex-col justify-center items-center">
               <div className="font-light text-lg">
