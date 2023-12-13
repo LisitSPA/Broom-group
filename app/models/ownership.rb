@@ -21,7 +21,7 @@
 #
 class Ownership < ApplicationRecord
 	validates :owner, :subsidiary, presence: true
-	validates :owner_id, uniqueness: { scope: :subsidiary_id }
+	# validates :owner_id, uniqueness: { scope: :subsidiary_id }
 	validates :percentage, presence: true, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
 	validate :firms_share_same_version, if: :owner_and_subsidiary_exist?
 	validate :cannot_be_owned_by_itself, if: :owner_and_subsidiary_exist?
