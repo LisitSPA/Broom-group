@@ -37,9 +37,9 @@ const Cell = ({
   };
 
   const cellClasses = classNames(
-    "rounded-md w-full h-full border-none focus:outline-TealBlue text-center px-2",
+    "rounded-md w-full h-full border border-solid-white focus:outline-TealBlue hover:border-TealBlue text-center px-2",
     {
-      "bg-slate-50": subsidiaryProfileId === ownerProfileId,
+      "bg-slate-50 border-none": subsidiaryProfileId === ownerProfileId,
       "bg-white": subsidiaryProfileId !== ownerProfileId,
     }
   );
