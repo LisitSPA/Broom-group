@@ -423,7 +423,7 @@ const ToolBar = ({
         className="border bg-white rounded-md text-sm text-Turquoise px-5 py-1 font-medium outline-none "
         onChange={(e) => setLevel(e?.target.value)}
       >
-        <option value="" selected>
+        <option value="all" selected>
           Todos los niveles
         </option>
         <option value="1">Nivel 1</option>

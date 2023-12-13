@@ -9,7 +9,7 @@ import { ModalLoading } from "./components/ModalLoading";
 
 const Explorer = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [level, setLevel] = useState("");
+  const [level, setLevel] = useState("all");
   const [filteredData, setFilteredData] = useState([]);
   const typeModal = useSelector((state) => state.modal.modalType);
   const handleSearchTermChange = (newSearchTerm) => {

@@ -81,7 +81,6 @@ const translateLevels = (ownersMap, firms, response) => {
           level: levelKey,
           societies: societiesInfo,
         };
-
         levelSocietiesInfo.push(levelInfo);
       }
     }
@@ -146,7 +145,12 @@ const porcentajes = [];
 const idprocen = [];
 const matriz = [];
 
-const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
+const Firm = React.memo(function Firm({
+  firm,
+  searchTerm,
+  selectAllChecked,
+  level,
+}) {
   const dispatch = useDispatch();
   const { firmOwnersMap } = useSelector((state) => state);
   const { response } = firmOwnersMap;
@@ -161,10 +165,16 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [groupedInfo, setGroupedInfo] = useState([]);
   const [highestLevel, setHighestLevel] = useState(0);
+  const [levelNumber, setLevelNumber] = useState("");
 
   useEffect(() => {
     setIsPageLoaded(true);
   }, []);
+
+  useEffect(() => {
+    const level = Object.keys(groupedInfo)?.length - 1;
+    setLevelNumber(level.toString());
+  }, [Object.keys(groupedInfo)]);
 
   useEffect(() => {
     setIsChecked(selectAllChecked);
@@ -183,6 +193,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
       rut: item.rut,
     };
   });
+  const filterLevel = level == "all" ? true : level === levelNumber;
 
   const handleCheckbox = () => {
     setIsChecked((prevChecked) => !prevChecked);
@@ -203,15 +214,15 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
   const imprimirArbol2 = (nodo, ancestros = []) => {
     const tieneAncestros = ancestros.includes(nodo.padre);
 
-    if (!tieneAncestros) {
-      console.log(`Padre ${nodo.padre} :`);
-    }
+    // if (!tieneAncestros) {
+    //   console.log(`Padre ${nodo.padre} :`);
+    // }
 
     if (nodo.hijos && nodo.hijos.length > 0) {
       nodo.hijos.forEach((hijo) => {
-        if (!tieneAncestros) {
-          console.log(`  Hijo ${hijo.id}`);
-        }
+        // if (!tieneAncestros) {
+        //   console.log(`  Hijo ${hijo.id}`);
+        // }
         imprimirArbol(hijo, [...ancestros, nodo.padre]);
       });
     }
@@ -572,6 +583,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ height: 0 }}
         transition={{ duration: 0.2 }}
+        style={{ display: !filterLevel ? "none" : "" }}
       >
         <div className={classes}>
           <div className="flex flex-col w-3/12 shrink-0">
@@ -628,9 +640,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
               <div className="text-sm">Participación</div>
             </div>
             <div className="flex flex-col justify-center items-center">
-              <div className="font-light text-lg">
-                {getNumberOfLevels(firmStructure, firm.firmId)}
-              </div>
+              <div className="font-light text-lg">{levelNumber}</div>
               <div className="text-sm">Niveles</div>
             </div>
           </div>
@@ -1168,7 +1178,7 @@ const Firm = React.memo(function Firm({ firm, searchTerm, selectAllChecked }) {
                       className="flex flex-col"
                       style={{ marginTop: "10px" }}
                     >
-                      <div className="flex justify-start items-center gap-1 ">
+                      <div className="flex justify-start items-center gap-1">
                         <p className="font-semibold">Shareholders</p>
                       </div>
                     </div>
