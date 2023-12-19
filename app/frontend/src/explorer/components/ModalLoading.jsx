@@ -26,7 +26,7 @@ export const ModalLoading = () => {
             />
           </g>
         </svg>
-        <span>Loading</span>
+        <span>Cargando...</span>
       </div>
     </div>
   );

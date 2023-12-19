@@ -7,15 +7,16 @@ import { updateOwnershipPercentage } from "@/redux/actions/versions";
 const Matrix = () => {
   const dispatch = useDispatch();
   const { actualVersion } = useSelector((state) => state);
+  const [loading, setLoading] = useState(false);
   const [errorState, setErrorState] = useState({});
   const { firms, filteredData } = actualVersion.response;
   const [items, setItems] = useState([]);
-  const textError = 'El porcentaje total no suma 100%'
+  const textError = "El porcentaje total no suma 100%";
 
   const getErrorList = (items) => {
     const errorList = items?.reduce((errors, profile) => {
       const { firmProfileId, investors } = profile;
-      let totalPercentage = 0
+      let totalPercentage = 0;
       if (investors.length > 0) {
         totalPercentage = calculateTotalPercentage(investors);
       }
@@ -25,15 +26,22 @@ const Matrix = () => {
 
       return errors;
     }, {});
-    return errorList
-  }
+    return errorList;
+  };
 
   useEffect(() => {
+    setLoading(true);
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
     const listItems = filteredData || firms;
-    setErrorState(getErrorList(listItems))
+    setErrorState(getErrorList(listItems));
     setItems(listItems);
 
-    return () => setItems([]);
+    return () => {
+      clearTimeout(timeout);
+      setItems([]);
+    };
   }, [firms, filteredData]);
 
   const calculateTotalPercentage = (investors) => {
@@ -78,7 +86,7 @@ const Matrix = () => {
       const investorIndex = updatedItems[subsidiaryIndex].investors.findIndex(
         (investor) => investor.ownerFirmProfileId === ownerProfileId
       );
-   
+
       if (investorIndex !== -1) {
         // Si el investor existe, actualizar el porcentaje
         updatedItems[subsidiaryIndex].investors[investorIndex].percentage =
@@ -95,7 +103,9 @@ const Matrix = () => {
       getFormattedInvestors(updatedItems);
     }
 
-    const totalPercentage = calculateTotalPercentage(updatedItems[subsidiaryIndex].investors);
+    const totalPercentage = calculateTotalPercentage(
+      updatedItems[subsidiaryIndex].investors
+    );
 
     const newErrorState = { ...errorState };
 
@@ -107,32 +117,42 @@ const Matrix = () => {
     setErrorState(newErrorState);
   };
 
-  if (!items?.length)
-    return <p style={{ margin: "1rem" }}>No se encotraron resultados!</p>;
-
   return (
     <>
-      {items?.map((subsidiary_firm, subsidiary_idx) => (
-        <div className="flex hover:outline hover:outline-1 outline-TealBlue/60">
-          <RowFirmCard
-            key={`subsidiary_firm_${subsidiary_idx}`}
-            firmName={subsidiary_firm.name}
-            firmRut={subsidiary_firm.rut}
-            error={errorState[subsidiary_firm.firmProfileId]}
-          />
-
-          {items?.map((owner_firm, owner_idx) => (
-            <Cell
-              key={`owner_firm_${subsidiary_firm.firmProfileId}`}
-              subsidiaryProfileId={subsidiary_firm.firmProfileId}
-              ownerProfileId={owner_firm.firmProfileId}
-              investors={subsidiary_firm.investors}
-              handlePercentageToSave={handlePercentageToSave}
-              error={errorState[subsidiary_firm.firmProfileId] && owner_firm.firmProfileId !== subsidiary_firm.firmProfileId }
-            />
-          ))}
+      {loading ? (
+        <div className="spinner-container">
+          <div className="spinner"></div>
         </div>
-      ))}
+      ) : items && items.length ? (
+        <>
+          {items?.map((subsidiary_firm, subsidiary_idx) => (
+            <div className="flex hover:outline hover:outline-1 outline-TealBlue/60">
+              <RowFirmCard
+                key={`subsidiary_firm_${subsidiary_idx}`}
+                firmName={subsidiary_firm.name}
+                firmRut={subsidiary_firm.rut}
+                error={errorState[subsidiary_firm.firmProfileId]}
+              />
+
+              {items?.map((owner_firm, owner_idx) => (
+                <Cell
+                  key={`owner_firm_${owner_idx}`}
+                  subsidiaryProfileId={subsidiary_firm.firmProfileId}
+                  ownerProfileId={owner_firm.firmProfileId}
+                  investors={subsidiary_firm.investors}
+                  handlePercentageToSave={handlePercentageToSave}
+                  error={
+                    errorState[subsidiary_firm.firmProfileId] &&
+                    owner_firm.firmProfileId !== subsidiary_firm.firmProfileId
+                  }
+                />
+              ))}
+            </div>
+          ))}
+        </>
+      ) : (
+        <p style={{ margin: "1rem" }}>No se encontraron resultados.</p>
+      )}
     </>
   );
 };

@@ -3,7 +3,7 @@ default: &default
   encoding: unicode
   username: postgres
   password: broom123*
-  host: db-broom
+  host: broom-group.postgres.database.azure.com
   pool: 5
 
 development:

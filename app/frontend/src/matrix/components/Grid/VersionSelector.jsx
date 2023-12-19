@@ -77,17 +77,26 @@ const VersionSelector = () => {
               transition={{ duration: 0.1 }}
             >
               <ul className="w-full text-center text-sm">
-                {versions?.map((item, index) => (
-                  <li
-                    key={index}
-                    className="py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() =>
-                      handleVersionSelect(item?.versionId, item?.versionNumber)
-                    }
-                  >
-                    {`Versión ${item?.versionNumber}`}
-                  </li>
-                ))}
+                {versions
+                  ?.filter(
+                    (item) =>
+                      item?.versionNumber !== null &&
+                      item?.versionNumber !== undefined
+                  )
+                  .map((item, index) => (
+                    <li
+                      key={index}
+                      className="py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() =>
+                        handleVersionSelect(
+                          item?.versionId,
+                          item?.versionNumber
+                        )
+                      }
+                    >
+                      {`Versión ${item?.versionNumber}`}
+                    </li>
+                  ))}
               </ul>
             </motion.div>
           )}

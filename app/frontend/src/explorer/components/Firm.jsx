@@ -562,7 +562,7 @@ const Firm = React.memo(function Firm({
         .then((canvas) => {
           // Crear un enlace para descargar la imagen
           const link = document.createElement("a");
-          link.download = "captura_div.png";
+          link.download = `malla_societaria_${firm?.name}.png`;
           link.href = canvas.toDataURL("image/png");
 
           // Simular clic en el enlace para iniciar la descarga

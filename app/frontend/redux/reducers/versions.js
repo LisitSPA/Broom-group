@@ -14,7 +14,7 @@ import {
   UPDATE_SELECTED_VERSION,
   SET_SEARCH_TEXT,
   UPDATE_OWNERSHIP_PERCENTAGE,
-  ADD_NEW_FIRM
+  ADD_NEW_FIRM,
 } from "../actions/versions";
 
 const defaultState = {
@@ -89,16 +89,16 @@ const versionReducer = (state = versionDefaultState, action) => {
           filteredData,
         },
       };
-      case ADD_NEW_FIRM:
-        console.log("Aqui");
-        console.log(action.payload);
-        console.log(state.response.firms);
-        console.log("state.response.firms");
-        return {
-          ...state,
-          response: action.payload,
-          // "firms": [...state.response.firms, ...action.payload.firms],
-        };
+    case ADD_NEW_FIRM:
+      console.log("Aqui");
+      console.log(action.payload);
+      console.log(state.response.firms);
+      console.log("state.response.firms");
+      return {
+        ...state,
+        response: action.payload,
+        // "firms": [...state.response.firms, ...action.payload.firms],
+      };
     default:
       return state;
   }
@@ -112,10 +112,15 @@ const createVersionReducer = (state = defaultState, action) => {
         isFetching: true,
       };
     case CREATE_VERSION_SUCCESS:
+      const newVersion = action.payload;
+
       return {
         ...state,
         isFetching: false,
-        response: action.payload,
+        response: {
+          ...state.response,
+          versions: [...state.response.versions, newVersion],
+        },
       };
     case CREATE_VERSION_ERROR:
       return {
