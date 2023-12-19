@@ -31,12 +31,7 @@ const countryReducer = (state = defaultState, action) => {
 const defaultState = {
   isFetching: false,
   errors: null,
-  response: {
-    id: null,
-    name: null,
-    created_at: null,
-    updated_at: null
-  },
+  response:[],
 };
 
 export {
