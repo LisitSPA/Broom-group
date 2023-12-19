@@ -435,7 +435,7 @@ const Firm = React.memo(function Firm({
   // Función para mostrar niveles y porcentajes de inversión
 
   const getNumberOfLevels = (firmStructure, firmId) => {
-    // console.log("firmStructure", firmId, firmStructure);
+     console.log("firmStructure", firmId, firmStructure);
     if (firmStructure?.levels) {
       const { levels } = firmStructure;
 
@@ -458,28 +458,26 @@ const Firm = React.memo(function Firm({
     return "Final";
   };
 
-  const getNumberOfPart = (firmStructure, firmId) => {
+  const getNumberOfPart = (firmStructure) => {
+    const uniqueIds = new Set();
+  
     // Verificar si firmStructure existe y tiene la propiedad levels
     if (firmStructure?.levels) {
       const { levels } = firmStructure;
-
+  
       // Iterar sobre las claves (niveles) de levels
-      for (const levelKey in levels) {
-        if (Object.hasOwnProperty.call(levels, levelKey)) {
-          // Obtener el objeto correspondiente al nivel actual
-          const levelObject = levels[levelKey];
-
-          // Verificar si firmId existe en el nivel actual
-          if (levelObject[firmId] && levelObject[firmId].length > 0) {
-            // Retornar la cantidad de niveles para el firmId
-            return levelObject[firmId].length;
-          }
-        }
-      }
+      Object.keys(levels).forEach((levelKey) => {
+        const levelObject = levels[levelKey];
+  
+        // Iterar sobre las claves (IDs) en el nivel actual
+        Object.keys(levelObject).forEach((id) => {
+          uniqueIds.add(id);
+        });
+      });
     }
-
-    // Retornar 0 si no se encuentra el firmId en ningún nivel
-    return 0;
+  
+    // Retornar la cantidad total de IDs únicos
+    return uniqueIds.size;
   };
 
   const renderLevels = (info, currentLevel, getLevelClassName) => (
