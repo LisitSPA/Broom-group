@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { closeModal } from "@/redux/actions/modal";
 import { createFirmProfile } from "@/redux/actions/firm_profiles";
 import { addNewFirm } from "@/redux/actions/versions";
-import { callCountry } from '@/redux/actions/country';
+import { callCountry } from "@/redux/actions/country";
 
 const ModalVersion = () => {
   const dispatch = useDispatch();
@@ -13,8 +13,8 @@ const ModalVersion = () => {
   }, [dispatch]);
   const [errors, setErrors] = useState({
     title: "",
-    rut:"",
-    countryId: ""
+    rut: "",
+    countryId: "",
     // Agrega más campos según sea necesario
   });
   const { modal } = useSelector((state) => state);
@@ -36,15 +36,14 @@ const ModalVersion = () => {
   }, [actualVersion]);
 
   useEffect(() => {
-    
     setCountries(country.response);
-    //console.log('countriess', country.response);
+    console.log("country.response", country.response);
   }, [country.response]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log('entro')
-  
+    console.log("entro");
+
     // Validaciones básicas, puedes personalizarlas según tus necesidades
     if (name === "title" && value.trim() === "") {
       setErrors((prevErrors) => ({
@@ -57,7 +56,7 @@ const ModalVersion = () => {
         title: "",
       }));
     }
-  
+
     // Actualizar el estado según el nombre del campo
     if (name === "countryId") {
       setSociedad((prevState) => ({
@@ -71,8 +70,6 @@ const ModalVersion = () => {
       }));
     }
   };
-  
-  
 
   const handleClose = () => {
     dispatch(closeModal());
@@ -104,7 +101,7 @@ const ModalVersion = () => {
   const grabar = async () => {
     try {
       let errorsCopy = { ...errors };
-  
+
       if (sociedad.title.trim() === "") {
         errorsCopy = {
           ...errorsCopy,
@@ -116,7 +113,7 @@ const ModalVersion = () => {
           title: "",
         };
       }
-  
+
       if (sociedad.rut.trim() === "") {
         errorsCopy = {
           ...errorsCopy,
@@ -128,7 +125,7 @@ const ModalVersion = () => {
           rut: "",
         };
       }
-  
+
       if (sociedad.countryId === 0) {
         errorsCopy = {
           ...errorsCopy,
@@ -140,9 +137,9 @@ const ModalVersion = () => {
           countryId: "",
         };
       }
-  
+
       setErrors(errorsCopy);
-  
+
       if (
         errorsCopy.title.trim() !== "" ||
         errorsCopy.rut.trim() !== "" ||
@@ -151,7 +148,7 @@ const ModalVersion = () => {
         console.log("Por favor, complete todos los campos obligatorios.");
         return; // Salir de la función si hay campos vacíos
       }
-  
+
       let nuevaSociedad = {
         title: sociedad.title,
         description: sociedad.description,
@@ -159,58 +156,54 @@ const ModalVersion = () => {
         sapCode: sociedad.sapCode,
         countryId: sociedad.countryId,
       };
-  
+
       console.log(nuevaSociedad);
 
-      dispatch(
-        createFirmProfile(nuevaSociedad, handleSuccess, handleFailure)
-      );
-  
+      dispatch(createFirmProfile(nuevaSociedad, handleSuccess, handleFailure));
+
       handleClose();
     } catch (error) {
       console.log(error);
     }
   };
-  
-// Función que maneja el éxito de la operación
-const handleSuccess = (response) => {
-  console.log("Operación exitosa:", response);
-  const firmProfileId = response?.firmProfileId;
-  const title = response?.title;
-  const description = response?.description;
-  const rut = response?.rut;
-  const sapcode = response?.sapCode;
-  const countryId = response?.countryId;
 
-  if (firmProfileId) {
-    console.log("firmProfileId:", title);
+  // Función que maneja el éxito de la operación
+  const handleSuccess = (response) => {
+    console.log("Operación exitosa:", response);
+    const firmProfileId = response?.firmProfileId;
+    const title = response?.title;
+    const description = response?.description;
+    const rut = response?.rut;
+    const sapcode = response?.sapCode;
+    const countryId = response?.countryId;
 
-    const nuevoElemento = {
-      firmId: null,
-      firmProfileId: firmProfileId,
-      name: title,
-      description: description,
-      rut: rut,
-      country: countryId,
-      sapCode: sapcode,
-      investors: [],
-    };
-    const responseVersion2 = {
-      ...responseVersion,
-      firms: [...responseVersion.firms, nuevoElemento],
-    };
-   console.log(responseVersion2)
-    dispatch(addNewFirm(responseVersion2));
+    if (firmProfileId) {
+      console.log("firmProfileId:", title);
 
-  }
+      const nuevoElemento = {
+        firmId: null,
+        firmProfileId: firmProfileId,
+        name: title,
+        description: description,
+        rut: rut,
+        country: countryId,
+        sapCode: sapcode,
+        investors: [],
+      };
+      const responseVersion2 = {
+        ...responseVersion,
+        firms: [...responseVersion.firms, nuevoElemento],
+      };
+      console.log(responseVersion2);
+      dispatch(addNewFirm(responseVersion2));
+    }
+  };
 
-};
-
-// Función que maneja un error en la operación
-const handleFailure = (error) => {
-  console.error("Error en la operación:", error);
-  // Puedes realizar más acciones aquí si es necesario
-};
+  // Función que maneja un error en la operación
+  const handleFailure = (error) => {
+    console.error("Error en la operación:", error);
+    // Puedes realizar más acciones aquí si es necesario
+  };
   return (
     <>
       {isOpen && (
@@ -284,9 +277,9 @@ const handleFailure = (error) => {
                     onChange={handleChange}
                     required
                   />
-                    {errors.title && (
-                      <p className="text-red-500 text-sm">{errors.title}</p>
-                    )}
+                  {errors.title && (
+                    <p className="text-red-500 text-sm">{errors.title}</p>
+                  )}
                 </div>
               </div>
 
@@ -328,9 +321,9 @@ const handleFailure = (error) => {
                     onChange={handleChange}
                     required
                   />
-                   {errors.rut && (
-                      <p className="text-red-500 text-sm">{errors.title}</p>
-                    )}
+                  {errors.rut && (
+                    <p className="text-red-500 text-sm">{errors.title}</p>
+                  )}
                 </div>
               </div>
 
@@ -364,23 +357,23 @@ const handleFailure = (error) => {
                   </label>
                 </div>
                 <div class="md:w-2/3">
-                <select
-                  class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-                  name="countryId"
-                  value={sociedad.countryId}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="0">--Seleccione un País--</option>
-                  {countries?.map((country) => (
-                    <option key={country.id} value={country.id}>
-                      {country.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.countryId && (
-                      <p className="text-red-500 text-sm">{errors.title}</p>
-                    )}
+                  <select
+                    class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+                    name="countryId"
+                    value={sociedad.countryId}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="0">--Seleccione un País--</option>
+                    {/* {countries?.map((country) => (
+                      <option key={country.id} value={country.id}>
+                        {country.name}
+                      </option>
+                    ))} */}
+                  </select>
+                  {errors.countryId && (
+                    <p className="text-red-500 text-sm">{errors.title}</p>
+                  )}
                 </div>
               </div>
             </div>

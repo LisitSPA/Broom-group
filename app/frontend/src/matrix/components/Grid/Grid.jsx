@@ -1,14 +1,14 @@
-import React from 'react'
-import StickyGridHeader from './StickyGridHeader'
-import Matrix from './Matrix'
+import React from "react";
+import StickyGridHeader from "./StickyGridHeader";
+import Matrix from "./Matrix";
 
-const Grid = () => {
+const Grid = ({ versions }) => {
   return (
     <div className="grid auto-cols-max auto-rows-max w-full h-screen relative overflow-x-scroll">
-      <StickyGridHeader />
+      <StickyGridHeader versions={versions} />
       <Matrix />
     </div>
-  )
-}
+  );
+};
 
-export default Grid
+export default Grid;

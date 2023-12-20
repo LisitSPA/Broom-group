@@ -4,19 +4,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { updateSelectedVersion } from "@/redux/actions/versions";
 
-const VersionSelector = () => {
+const VersionSelector = ({ versions }) => {
   const dispatch = useDispatch();
   const { matrix } = useSelector((state) => state);
-  const { versions, lastVersionId } = matrix.response;
+  const { lastVersionId } = matrix.response;
 
   const [isOpen, setIsOpen] = useState(false);
   const [version, setVersion] = useState(`Última versión`);
+  const [listVersion, setListVersion] = useState([]);
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
 
   useEffect(() => {
     dispatch(updateSelectedVersion(lastVersionId));
-  }, [lastVersionId]);
+    setListVersion(versions);
+  }, [lastVersionId, versions]);
 
   useOutsideClick(dropdownRef, buttonRef, () => handleCloseDropdown());
 

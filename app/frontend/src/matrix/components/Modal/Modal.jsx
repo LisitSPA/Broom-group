@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeModal } from "@/redux/actions/modal";
 import { createVersion } from "@/redux/actions/versions";
 import { SnackbarUtilities } from "@/src/helpers/snackbar-manager";
 
-const Modal = () => {
+const Modal = ({ setVersions }) => {
   const dispatch = useDispatch();
   const {
     modal,
@@ -13,20 +13,32 @@ const Modal = () => {
     actualVersion,
   } = useSelector((state) => state);
   const { isOpen, modalType } = modal;
-  const { lastVersionId, matrixId } = matrix.response;
+  const { lastVersionId, matrixId, versions } = matrix.response;
   const { firms } = actualVersion.response;
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleClose = () => dispatch(closeModal());
 
-  const handleOnSuccess = () => {
+  useEffect(() => {
+    setVersions(versions);
+  }, [versions]);
+
+  const handleOnSuccess = (response) => {
     SnackbarUtilities.success("Nueva versión creada con éxito");
+    setVersions((prevData) => [...prevData, response]);
+    setIsLoading(false);
+    handleClose();
   };
   const handleOnFailure = (error) => {
     SnackbarUtilities.error(
-      "No se pudo crear una nueva versión, intente de nuevo. " + error.response.data.errors
+      "No se pudo crear una nueva versión, intente de nuevo. " +
+        error.response.data.errors
     );
+    setIsLoading(false);
+    handleClose();
   };
   const handleSaveNewVersion = () => {
+    setIsLoading(true);
     const listFirmProfileId = firms?.map((item) => item.firmProfileId);
 
     dispatch(
@@ -47,7 +59,6 @@ const Modal = () => {
         handleOnFailure
       )
     );
-    handleClose();
   };
 
   return (
@@ -83,9 +94,7 @@ const Modal = () => {
             {/* body */}
             <div>
               <h2 className="text-lg font-medium mt-5">
-                {`Se guardarán los cambios cómo una versión ${
-                  lastVersionId + 1
-                } sobre la base de datos.`}
+                Se guardarán los cambios cómo una versión en la base de datos
               </h2>
               <p className="text-lg font-medium mt-5">
                 ¿Crear una nueva versión o es una simulación?
@@ -94,7 +103,10 @@ const Modal = () => {
 
             <div className="flex justify-center items-center mt-7 gap-2">
               <div className="flex">
-                <button className="flex justify-between items-center border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white">
+                <button
+                  disabled={isLoading}
+                  className="flex justify-between items-center border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -114,6 +126,7 @@ const Modal = () => {
                 </button>
 
                 <button
+                  disabled={isLoading}
                   onClick={handleSaveNewVersion}
                   className="flex justify-center items-center border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white"
                 >
@@ -136,10 +149,26 @@ const Modal = () => {
                 </button>
               </div>
 
-              <button className="border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white">
+              <button
+                disabled={isLoading}
+                className="border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white"
+              >
                 Cancelar
               </button>
             </div>
+            {isLoading && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                  padding: "1rem",
+                }}
+              >
+                <div className="spinner"></div>
+              </div>
+            )}
           </div>
         </div>
       )}

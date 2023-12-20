@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar } from "@/src/shared";
 import MatrixContainer from "./components/MatrixContainer";
 import Modal from "./components/Modal/Modal";
@@ -10,13 +10,12 @@ import ModalVersion from "./components/Modal/ModalVersion";
 
 const Matrix = () => {
   const dispatch = useDispatch();
+  const [listVersions, setListVersions] = useState();
   const selectedVersion = useSelector(
     (state) => state.selectedVersion.selectedVersion
   );
 
-  const typeModal = useSelector(
-    (state) => state.modal.modalType
-  );
+  const typeModal = useSelector((state) => state.modal.modalType);
 
   useEffect(() => {
     dispatch(callMatrix());
@@ -29,10 +28,12 @@ const Matrix = () => {
   return (
     <>
       <Sidebar />
-      <MatrixContainer />
-      { 
-        typeModal == "modalVersion" ? <ModalVersion /> : <Modal />
-      }      
+      <MatrixContainer versions={listVersions} />
+      {typeModal == "modalVersion" ? (
+        <ModalVersion />
+      ) : (
+        <Modal setVersions={setListVersions} />
+      )}
     </>
   );
 };
