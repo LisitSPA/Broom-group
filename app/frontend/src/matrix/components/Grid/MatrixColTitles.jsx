@@ -7,7 +7,8 @@ const MatrixColTitles = () => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    const listFirms = filteredData || firms;
+    //Solo se consulta lo que viene en la data inicial, mas no en la búsqueda
+    const listFirms = firms;
     setItems(listFirms);
   }, [firms, filteredData]);
 

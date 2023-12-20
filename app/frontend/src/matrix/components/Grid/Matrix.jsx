@@ -11,6 +11,8 @@ const Matrix = () => {
   const [errorState, setErrorState] = useState({});
   const { firms, filteredData } = actualVersion.response;
   const [items, setItems] = useState([]);
+  //Se crea state para almacenar los valores de la búsqueda del cuadrante derecho al realizar una búsqueda
+  const [items2, setItems2] = useState([]);
   const textError = "El porcentaje total no suma 100%";
 
   const getErrorList = (items) => {
@@ -37,6 +39,8 @@ const Matrix = () => {
     const listItems = filteredData || firms;
     setErrorState(getErrorList(listItems));
     setItems(listItems);
+    //Se almacena consulta para cuadrante del lado derecho
+    setItems2(firms);
 
     return () => {
       clearTimeout(timeout);
@@ -134,7 +138,7 @@ const Matrix = () => {
                 error={errorState[subsidiary_firm.firmProfileId]}
               />
 
-              {items?.map((owner_firm, owner_idx) => (
+              {items2?.map((owner_firm, owner_idx) => (
                 <Cell
                   key={`owner_firm_${owner_idx}`}
                   subsidiaryProfileId={subsidiary_firm.firmProfileId}

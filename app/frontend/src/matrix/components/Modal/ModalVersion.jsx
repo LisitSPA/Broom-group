@@ -7,7 +7,24 @@ import { callCountry } from "@/redux/actions/country";
 
 const ModalVersion = () => {
   const dispatch = useDispatch();
+  const [listCountries, setListCountries] = useState([]);
 
+  useEffect(() => {
+    const getCountries = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/v1/country");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setListCountries(data);
+      } catch (error) {
+        console.error("Hubo un problema con la solicitud:", error);
+      }
+    };
+
+    getCountries();
+  }, []);
   useEffect(() => {
     dispatch(callCountry());
   }, [dispatch]);
@@ -27,22 +44,15 @@ const ModalVersion = () => {
     countryId: 0,
   });
 
-  const { actualVersion, country } = useSelector((state) => state);
+  const { actualVersion } = useSelector((state) => state);
   const [responseVersion, setResponseVersion] = useState({});
-  const [countries, setCountries] = useState([]);
 
   useEffect(() => {
     setResponseVersion(actualVersion.response);
   }, [actualVersion]);
 
-  useEffect(() => {
-    setCountries(country.response);
-    console.log("country.response", country.response);
-  }, [country.response]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("entro");
 
     // Validaciones básicas, puedes personalizarlas según tus necesidades
     if (name === "title" && value.trim() === "") {
@@ -73,29 +83,6 @@ const ModalVersion = () => {
 
   const handleClose = () => {
     dispatch(closeModal());
-  };
-
-  const handleSaveNewVersion = () => {
-    dispatch(
-      createVersion({
-        versionData: {
-          matrixId: 2,
-          authorId: 2,
-          title: "prueba",
-          description: "test",
-          isSimulated: false,
-          sourceFile: null,
-        },
-        firmProfilesIds: [],
-        ownerships: [
-          {
-            ownerProfileId: 1,
-            subsidiaryProfileId: 1,
-            percentage: 1,
-          },
-        ],
-      })
-    );
   };
 
   const grabar = async () => {
@@ -239,26 +226,6 @@ const ModalVersion = () => {
             {/* body */}
 
             <div class="w-full">
-              {/* max-w-sm"> */}
-              {/* <div className="flex flex-col w-full text-sm rounded-md gap-1">
-              <div className='flex items-center w-full gap-2'>
-                <label className='w-3/10'>Nombre de sociedad</label>
-                <input type="text" className='h-8 w-7/10 border p-2 rounded-md text-center' placeholder='Nombre Sociedad' />
-              </div>
-              <div className='flex items-center w-full gap-2'>
-                <label className='w-3/10'>RUT:</label>
-                <input type="text" className='h-8 w-7/10 border p-2 rounded-md text-center' placeholder='11.111.111-1' />
-              </div>
-              <div className='flex items-center w-full gap-2'>
-                <label className='w-3/10'>Código SAP</label>
-                <input type="text" className='h-8 w-7/10 border p-2 rounded-md text-center' placeholder='Código SAP' />
-              </div>
-              <div className='flex items-center w-full gap-2'>
-                <label className='w-3/10'>País:</label>
-                <input type="text" className='h-8 w-7/10 border p-2 rounded-md text-center' placeholder='País' />
-              </div>
-              </div> */}
-
               <div class="md:flex md:items-center mb-6">
                 <div class="md:w-1/3">
                   <label
@@ -365,11 +332,11 @@ const ModalVersion = () => {
                     required
                   >
                     <option value="0">--Seleccione un País--</option>
-                    {/* {countries?.map((country) => (
+                    {listCountries?.map((country) => (
                       <option key={country.id} value={country.id}>
                         {country.name}
                       </option>
-                    ))} */}
+                    ))}
                   </select>
                   {errors.countryId && (
                     <p className="text-red-500 text-sm">{errors.title}</p>
