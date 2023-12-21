@@ -153,7 +153,7 @@ const ToolBar = ({
                   nivel: nivel,
                   porcentaje: porcentajeSuma,
                   sapPropietario: sapPropietario,
-                  dataCountry: "dataCountry",
+                  // dataCountry: "dataCountry",
                 });
               }
             }
@@ -228,7 +228,7 @@ const ToolBar = ({
                 nivel: nivel,
                 porcentaje: porcentajeSuma,
                 sapPropietario: sapPropietario,
-                dataCountry: "dataCountry",
+                // dataCountry: "dataCountry",
               });
             }
           }
@@ -299,7 +299,7 @@ const ToolBar = ({
                     nivel: nivel,
                     porcentaje: porcentajeSuma,
                     sapPropietario: sapPropietario,
-                    dataCountry: "dataCountry",
+                    // dataCountry: "dataCountry",
                   });
                 }
               }
@@ -479,20 +479,20 @@ const ToolBar = ({
                   className="text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer"
                   onClick={handlerBulkImportCompaniesFinals}
                 >
-                  exportar solo sociedades finales
+                  Exportar solo sociedades finales
                 </p>
                 <p
                   className="text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer"
                   onClick={handlerBulkImportStockholders}
                 >
-                  exportar solo stockholders
+                  Exportar solo stockholders
                 </p>
                 <hr className="border-b-2 border-gray-300" />
                 <div
                   className="flex justify-center items-center text-gray-700 hover:text-teal-600 transition-colors duration-300 cursor-pointer"
                   onClick={handlerBulkImportCompanies}
                 >
-                  <p className="w-full">importación masiva de sociedades</p>
+                  <p className="w-full">Exportación masiva de sociedades</p>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="14"
