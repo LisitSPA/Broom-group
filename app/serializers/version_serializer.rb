@@ -31,6 +31,12 @@ class VersionSerializer < ActiveModel::Serializer
   attribute :author
   attribute :source_file, key: :sourceFile
   attribute :simulation, key: :isSimulated
+  attribute :formatted_created_at, key: :created_at  
+  
+   #damos formato a la fecha
+   def formatted_created_at
+    object.created_at.strftime('%Y-%m-%d %H:%M:%S')
+  end
 
   def author
     object.author&.email
