@@ -37,6 +37,20 @@ const Modal = ({ setVersions }) => {
     setIsLoading(false);
     handleClose();
   };
+  const handleOnSuccessSimulation = (response) => {
+    SnackbarUtilities.success("Nuevo escenario simulado creado con éxito");
+    setVersions((prevData) => [...prevData, response]);
+    setIsLoading(false);
+    handleClose();
+  };
+  const handleOnFailureSimulation = (error) => {
+    SnackbarUtilities.error(
+      "No se pudo crear un nuevo escenario simulado, intente de nuevo. " +
+        error.response.data.errors
+    );
+    setIsLoading(false);
+    handleClose();
+  };
   const handleSaveNewVersion = () => {
     setIsLoading(true);
     const listFirmProfileId = firms?.map((item) => item.firmProfileId);
@@ -57,6 +71,29 @@ const Modal = ({ setVersions }) => {
         },
         handleOnSuccess,
         handleOnFailure
+      )
+    );
+  };
+  const handleSaveNewSimulation = () => {
+    setIsLoading(true);
+    const listFirmProfileId = firms?.map((item) => item.firmProfileId);
+
+    dispatch(
+      createVersion(
+        {
+          versionData: {
+            matrixId: matrixId,
+            authorId: 1,
+            title: `Versión ${lastVersionId + 1}`,
+            description: `Versión ${lastVersionId + 1}`,
+            isSimulated: true,
+            sourceFile: null,
+          },
+          firmProfilesIds: listFirmProfileId,
+          ownerships: updatedOwnership,
+        },
+        handleOnSuccessSimulation,
+        handleOnFailureSimulation
       )
     );
   };
@@ -105,7 +142,10 @@ const Modal = ({ setVersions }) => {
               <div className="flex">
                 <button
                   disabled={isLoading}
-                  className="flex justify-between items-center border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white"
+                  onClick={handleSaveNewSimulation}
+                  className={`border-2 flex px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white ${
+                    isLoading ? "disabled:opacity-50" : ""
+                  }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -128,7 +168,9 @@ const Modal = ({ setVersions }) => {
                 <button
                   disabled={isLoading}
                   onClick={handleSaveNewVersion}
-                  className="flex justify-center items-center border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white"
+                  className={`border-2 px-5 flex py-2 rounded-md hover:bg-zinc-600 hover:text-white ${
+                    isLoading ? "disabled:opacity-50" : ""
+                  }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -151,7 +193,9 @@ const Modal = ({ setVersions }) => {
 
               <button
                 disabled={isLoading}
-                className="border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white"
+                className={`border-2 px-5 py-2 rounded-md hover:bg-zinc-600 hover:text-white ${
+                  isLoading ? "disabled:opacity-50" : ""
+                }`}
               >
                 Cancelar
               </button>
